@@ -64,28 +64,28 @@ const winePairingMenu = [
         id: "wine-1",
         name: "Dom Pérignon Brut Champagne 2012",
         description: "Crisp stone fruit, mineral tension. Paired with Oscietra Caviar.",
-        image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=300&q=80",
+        image: "images/dom-perignon.png",
         price: "Pairing 1"
     },
     {
         id: "wine-2",
         name: "Egon Müller Scharzhofberger Riesling Kabinett 2020",
         description: "Off-dry white peach, elegant acidity. Paired with Hokkaido Scallop.",
-        image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=300&q=80",
+        image: "images/egon-muller.png",
         price: "Pairing 2"
     },
     {
         id: "wine-3",
         name: "Domaine de la Romanée-Conti Grand Cru Burgundy 2017",
         description: "Red cherries, forest floor, velvet complexity. Paired with White Truffle Agnolotti.",
-        image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=300&q=80",
+        image: "images/drc-burgundy.png",
         price: "Pairing 3"
     },
     {
         id: "wine-4",
         name: "Château d'Yquem Premier Cru Supérieur Sauternes 2015",
         description: "Candied apricot, honeysuckle, infinite finish. Paired with Manjari Chocolate.",
-        image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=300&q=80",
+        image: "images/chateau-yquem.png",
         price: "Pairing 4"
     }
 ];
@@ -111,7 +111,7 @@ const atHomeItems = [
         name: "Sommelier Signature Wine Case (3 Bottles)",
         description: "A private, custom-tailored collection of library vintages selected by our Lead Sommelier, complete with handwritten tasting notes.",
         price: 320,
-        image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=300&q=80"
+        image: "images/drc-burgundy.png"
     }
 ];
 
