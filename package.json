@@ -1,0 +1,22 @@
+{
+  "name": "aether-nyc-booking-system",
+  "version": "1.0.0",
+  "description": "Ultra-premium static website and interactive booking system demo for Aether NYC.",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server -p 3000 -c-1",
+    "start": "npx http-server -p 3000 -c-1"
+  },
+  "keywords": [
+    "restaurant",
+    "booking",
+    "luxury",
+    "demo",
+    "interactive"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

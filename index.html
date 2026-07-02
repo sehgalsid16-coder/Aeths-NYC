@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether NYC | Intimate Fine Dining & Premium Tasting Menus</title>
+    <meta name="description" content="Experience Aether NYC — a sophisticated, quiet-luxury fine dining destination in New York City. Seasonal tasting menus, curated wines, and bespoke service.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- --- TOAST CONTAINER (ALERTS) --- -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- --- STICKY NAVIGATION HEADER --- -->
+    <header class="nav-header">
+        <div class="container nav-container">
+            <a href="#" class="logo" aria-label="Aether NYC Home">
+                <span class="logo-main">Aether</span>
+                <span class="logo-sub">New York City</span>
+            </a>
+            
+            <nav role="navigation">
+                <ul class="nav-menu">
+                    <li><a href="#story" class="nav-link">Story</a></li>
+                    <li><a href="#timeline" class="nav-link">Seasons</a></li>
+                    <li><a href="#menu" class="nav-link">Menu</a></li>
+                    <li><a href="#experience" class="nav-link">Experience</a></li>
+                    <li><a href="#reserve" class="nav-link">Reserve</a></li>
+                    <li><a href="#athome" class="nav-link">At Home</a></li>
+                </ul>
+            </nav>
+            
+            <div class="nav-cta">
+                <a href="#reserve" class="btn btn-primary" style="padding: 0.6rem 1.5rem; font-size: 0.65rem;">Reserve Table</a>
+            </div>
+            
+            <button class="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- --- HERO SECTION --- -->
+    <section class="hero" id="hero" style="background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80');">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="hero-pre">Quiet Luxury Dining</span>
+            <h1 class="hero-title">Intimate Culinary Artistry</h1>
+            <p class="hero-desc">An immersive, micro-seasonal tasting journey nestled in the heart of Manhattan. Crafted with quiet composition and discrete hospitality.</p>
+            <div class="hero-ctas">
+                <a href="#reserve" class="btn btn-primary">Reserve Your Table</a>
+                <a href="#menu" class="btn btn-secondary">Explore the Menu</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- --- OUR STORY --- -->
+    <section class="section section-dark" id="story">
+        <div class="container">
+            <div class="story-grid">
+                <div class="story-text">
+                    <span class="section-pre">Our Philosophy</span>
+                    <h2 class="section-title">A Symphony of Micro-Seasons</h2>
+                    <div class="gold-line"></div>
+                    <p>At Aether, we believe that dining is an intimate dialogue between nature, artisan, and guest. Our kitchen honors the fleeting moments of each season, securing rare ingredients at their precise peak of flavor.</p>
+                    <p class="story-quote">“Every course is a quiet whisper, honoring texture, temperature, and origin.”</p>
+                    <p>With only sixteen seats, our dining room provides an exclusive sanctuary from the city's pulse. Here, time slows, allowing for complete immersion in the sensory narratives crafted by our culinary team.</p>
+                </div>
+                <div class="story-img-container">
+                    <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80" alt="Beautifully prepared table setup at Aether NYC" class="story-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- FEATURE 3: INTERACTIVE MICRO-SEASONS TIMELINE --- -->
+    <section class="section timeline-section" id="timeline">
+        <div class="container timeline-container">
+            <div class="section-header" style="margin-bottom: 3.5rem;">
+                <span class="section-pre">Micro-Seasons</span>
+                <h2 class="section-title">The Foraging Calendar</h2>
+                <div class="gold-line-center"></div>
+                <p class="section-subtitle">Drag the slider to explore the raw ingredients defining our menu month-by-month.</p>
+            </div>
+            
+            <div class="timeline-widget">
+                <div class="timeline-slider-wrapper">
+                    <input type="range" id="timeline-slider" class="timeline-slider" min="0" max="11" value="0" aria-label="Micro-seasons monthly timeline slider">
+                    <div class="timeline-ticks" aria-hidden="true">
+                        <span class="timeline-tick-label active">Jan</span>
+                        <span class="timeline-tick-label">Feb</span>
+                        <span class="timeline-tick-label">Mar</span>
+                        <span class="timeline-tick-label">Apr</span>
+                        <span class="timeline-tick-label">May</span>
+                        <span class="timeline-tick-label">Jun</span>
+                        <span class="timeline-tick-label">Jul</span>
+                        <span class="timeline-tick-label">Aug</span>
+                        <span class="timeline-tick-label">Sep</span>
+                        <span class="timeline-tick-label">Oct</span>
+                        <span class="timeline-tick-label">Nov</span>
+                        <span class="timeline-tick-label">Dec</span>
+                    </div>
+                </div>
+                
+                <div class="timeline-card">
+                    <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=400&q=80" id="timeline-card-img" alt="Seasonal Crop" class="timeline-card-img">
+                    <div class="timeline-card-body">
+                        <h3 class="timeline-card-month font-serif" id="timeline-card-month">January</h3>
+                        <h4 class="text-gold" style="font-size:0.95rem; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.75rem;" id="timeline-card-crop">Black Winter Truffle & Sunchoke</h4>
+                        <p id="timeline-card-desc" style="font-size:0.85rem; line-height:1.6;">Deep winter frost focuses sugar in root vegetables. We shave Umbrian winter truffles over slow-roasted sunchoke broth and pine-needle oil.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- THE MENU --- -->
+    <section class="section section-dark" id="menu">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-pre">The Culinary Offering</span>
+                <h2 class="section-title">Seasonal Curations</h2>
+                <div class="gold-line-center"></div>
+                <p class="section-subtitle">A seven-course progressive menu celebrating organic, hand-foraged ingredients.</p>
+            </div>
+            
+            <div class="menu-tabs">
+                <button type="button" class="menu-tab-btn active" id="tab-tasting">Spring Tasting Menu</button>
+                <button type="button" class="menu-tab-btn" id="tab-pairings">Sommelier Pairings</button>
+            </div>
+            
+            <div class="menu-content">
+                <!-- Tasting Menu Pane -->
+                <div class="menu-pane active" id="pane-tasting">
+                    <div class="menu-info">Seven Courses — $295 per guest</div>
+                    <div class="menu-items-list">
+                        <!-- Course 1 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=150&q=80" alt="Oscietra Caviar" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Oscietra Caviar</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Course I</span>
+                                </div>
+                                <p class="menu-item-desc">Chilled golden potato chawanmushi, brown butter cream, crispy chive blossom.</p>
+                            </div>
+                        </div>
+                        <!-- Course 2 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=150&q=80" alt="Hokkaido Scallop Crudo" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Hokkaido Scallop Crudo</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Course II</span>
+                                </div>
+                                <p class="menu-item-desc">Preserved yuzu-kosho vinaigrette, finger lime, shiso infusion, sea grape.</p>
+                            </div>
+                        </div>
+                        <!-- Course 3 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=150&q=80" alt="White Truffle Agnolotti" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">White Truffle Agnolotti</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Course III</span>
+                                </div>
+                                <p class="menu-item-desc">Hand-folded pasta, Parmigiano-Reggiano riserva emulsion, shaved Umbrian white truffle.</p>
+                            </div>
+                        </div>
+                        <!-- Course 4 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=150&q=80" alt="Atlantic Halibut Confit" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Atlantic Halibut Confit</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Course IV</span>
+                                </div>
+                                <p class="menu-item-desc">Poached in olive oil, charcoal-roasted leeks, saffron-scented lobster reduction.</p>
+                            </div>
+                        </div>
+                        <!-- Course 5 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=150&q=80" alt="Miyazaki A5 Wagyu Striploin" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Miyazaki A5 Wagyu Striploin</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Course V</span>
+                                </div>
+                                <p class="menu-item-desc">Wood-fired over binchotan, sunchoke puree, fermented black garlic jus, sea salt.</p>
+                            </div>
+                        </div>
+                        <!-- Course 6 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1517093157656-b9ecdf16371c?auto=format&fit=crop&w=150&q=80" alt="Meyer Lemon & Shiso Sorbet" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Meyer Lemon & Shiso Sorbet</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Course VI</span>
+                                </div>
+                                <p class="menu-item-desc">A delicate palate cleanser infused with premium sake and wild mint.</p>
+                            </div>
+                        </div>
+                        <!-- Course 7 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=150&q=80" alt="Manjari Chocolate & Gold Leaf" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Manjari Chocolate</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Course VII</span>
+                                </div>
+                                <p class="menu-item-desc">Smoked sea salt caramel, roasted hazelnut crunch, edible 24K gold leaf.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pairings Pane -->
+                <div class="menu-pane" id="pane-pairings">
+                    <div class="menu-info">Curated Cellar Pairings — $175 per guest</div>
+                    <div class="menu-items-list">
+                        <!-- Pairing 1 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=150&q=80" alt="Dom Pérignon Brut Champagne" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Dom Pérignon Brut Champagne 2012</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Pairing I</span>
+                                </div>
+                                <p class="menu-item-desc">Crisp stone fruit, mineral tension, fine persistent effervescence. Selected for Oscietra Caviar.</p>
+                            </div>
+                        </div>
+                        <!-- Pairing 2 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=150&q=80" alt="Egon Müller Riesling" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Egon Müller Riesling Kabinett 2020</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Pairing II</span>
+                                </div>
+                                <p class="menu-item-desc">Off-dry white peach, petrol nuances, saline backbone. Complementing Hokkaido Scallop.</p>
+                            </div>
+                        </div>
+                        <!-- Pairing 3 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=150&q=80" alt="Domaine de la Romanée-Conti Burgundy" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">DRC Grand Cru Burgundy 2017</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Pairing III</span>
+                                </div>
+                                <p class="menu-item-desc">Ripe red cherries, damp forest floor, velvet tannic architecture. Paired with White Truffle Agnolotti.</p>
+                            </div>
+                        </div>
+                        <!-- Pairing 4 -->
+                        <div class="menu-item">
+                            <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=150&q=80" alt="Château d'Yquem Sauternes" class="menu-item-img">
+                            <div class="menu-item-body">
+                                <div class="menu-item-header">
+                                    <h3 class="menu-item-name">Château d'Yquem Sauternes 2015</h3>
+                                    <div class="menu-item-spacer"></div>
+                                    <span class="menu-item-price">Pairing IV</span>
+                                </div>
+                                <p class="menu-item-desc">Candied apricot, honeyed orange peel, infinite sweet acidity. Paired with Manjari Chocolate.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- --- FEATURE 2: VIRTUAL SOMMELIER PALATE ASSISTANT --- -->
+                    <div class="somm-assistant-box">
+                        <h4 class="font-serif text-gold" style="font-size: 1.35rem; margin-bottom: 0.75rem;">Palate Cellar Assistant</h4>
+                        <p style="font-size: 0.85rem; max-width: 480px; margin: 0 auto 1.5rem auto; color: var(--color-secondary);">Unsure which cellar selection aligns with your taste? Consult our virtual sommelier for an instant recommendation.</p>
+                        <button type="button" class="btn btn-secondary btn-small somm-assistant-btn" id="somm-toggle-btn">Consult Virtual Sommelier</button>
+                        
+                        <div class="somm-interface" id="somm-interface">
+                            <h5 class="form-label" style="text-align: left; margin-bottom: 1rem;">Select Your Preferred Wine Character</h5>
+                            <div class="somm-options-grid">
+                                <button type="button" class="somm-option-btn btn-secondary" data-palate="crisp">
+                                    <span class="somm-option-icon">✨</span>
+                                    <span class="somm-option-title">Crisp White & Stone Fruit</span>
+                                </button>
+                                <button type="button" class="somm-option-btn btn-secondary" data-palate="velvet">
+                                    <span class="somm-option-icon">🍇</span>
+                                    <span class="somm-option-title">Velvety & Structured Red</span>
+                                </button>
+                                <button type="button" class="somm-option-btn btn-secondary" data-palate="mineral">
+                                    <span class="somm-option-icon">🪨</span>
+                                    <span class="somm-option-title">Limestone Chalk & Yeast</span>
+                                </button>
+                            </div>
+                            
+                            <div class="somm-result-panel" id="somm-result-panel">
+                                <span class="form-label">Sommelier Recommendation</span>
+                                <h4 class="font-serif text-gold" id="somm-wine-name" style="font-size: 1.3rem; margin: 0.25rem 0 0.5rem 0;">Wine Title</h4>
+                                <p id="somm-wine-notes" style="font-size: 0.85rem; color: var(--color-secondary); line-height: 1.6; margin-bottom: 0.5rem;"></p>
+                                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-gold);" id="somm-wine-price">$0 per glass</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- THE EXPERIENCE --- -->
+    <section class="section section-surface" id="experience">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-pre">The Ambiance</span>
+                <h2 class="section-title">Refined Hospitality</h2>
+                <div class="gold-line-center"></div>
+                <p class="section-subtitle">Every element of Aether is deliberate, ensuring acoustic comfort and premium aesthetics.</p>
+            </div>
+            
+            <div class="experience-grid">
+                <!-- Card 1 -->
+                <div class="experience-card">
+                    <div class="experience-num">01</div>
+                    <h3 class="experience-title">Bespoke Acoustics</h3>
+                    <p class="experience-desc">Walls lined with noise-dampening wool panels wrapped in Belgian linen. Quiet conversations remain private, set against a curated jazz accompaniment.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="experience-card">
+                    <div class="experience-num">02</div>
+                    <h3 class="experience-title">Choreographed Service</h3>
+                    <p class="experience-desc">Service is non-intrusive and highly tailored. Courses arrive in perfect, quiet synchrony, ensuring your focus remains entirely on your companions.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="experience-card">
+                    <div class="experience-num">03</div>
+                    <h3 class="experience-title">Rare Library Cellar</h3>
+                    <p class="experience-desc">An extensive list of mature biodynamic wines, vertical champagnes, and limited-run sakes, sourced directly from private estates worldwide.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- RESERVE YOUR TABLE (CORE BOOKING SYSTEM) --- -->
+    <section class="section section-dark" id="reserve">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-pre">Reservations</span>
+                <h2 class="section-title">Secure Your Table</h2>
+                <div class="gold-line-center"></div>
+                <p class="section-subtitle">Reservations release on the first of each month for the subsequent month. Secure your seating online.</p>
+            </div>
+            
+            <div class="booking-section-wrapper">
+                <!-- Step 1 & 2 Column: Calendar + Seating Map -->
+                <div class="booking-card" style="gap: 1.5rem;">
+                    <div class="booking-step-title">
+                        <span class="booking-step-num">1</span> Date, Time & Seating
+                    </div>
+                    
+                    <!-- Calendar -->
+                    <div class="calendar-widget">
+                        <div class="calendar-header">
+                            <button type="button" class="calendar-btn-nav" id="cal-prev" aria-label="Previous Month">&larr;</button>
+                            <span class="calendar-month" id="cal-month">October 2026</span>
+                            <button type="button" class="calendar-btn-nav" id="cal-next" aria-label="Next Month">&rarr;</button>
+                        </div>
+                        
+                        <div class="calendar-weekdays">
+                            <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                        </div>
+                        
+                        <div class="calendar-days" id="cal-days">
+                            <!-- JS populated -->
+                        </div>
+                        
+                        <div class="calendar-legend">
+                            <div class="legend-item"><span class="legend-dot avail"></span> Available</div>
+                            <div class="legend-item"><span class="legend-dot limit"></span> Limited</div>
+                            <div class="legend-item"><span class="legend-dot full"></span> Booked / Closed</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Time slots -->
+                    <div class="time-slots-container" id="time-slots-container" style="display: none; margin-top: 1rem;">
+                        <h4 class="form-label" style="margin-bottom: 0.5rem;">Select Seating Time</h4>
+                        <div class="time-slots-grid" id="time-slots-grid">
+                            <!-- JS populated -->
+                        </div>
+                    </div>
+                    
+                    <!-- --- FEATURE 1: INTERACTIVE FLOOR PLAN --- -->
+                    <div class="floorplan-wrapper" id="floorplan-wrapper">
+                        <h4 class="form-label" style="margin-bottom: 1rem;">Choose Seating Zone</h4>
+                        <div class="floorplan-svg-container">
+                            <svg class="floorplan-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Kitchen Counter Bar (Top Area) -->
+                                <path d="M 30 35 L 170 35" stroke="#2D2320" stroke-width="6" stroke-linecap="round" fill="none"/>
+                                <text x="100" y="25" fill="#A89F9A" font-size="8" font-family="Inter" font-weight="500" text-anchor="middle">OPEN KITCHEN HEARTH</text>
+                                
+                                <!-- Counter Chairs C1-C6 -->
+                                <g class="seat-node" data-seat="counter">
+                                    <circle cx="50" cy="48" r="7"/>
+                                    <circle cx="70" cy="48" r="7"/>
+                                    <circle cx="90" cy="48" r="7"/>
+                                    <circle cx="110" cy="48" r="7"/>
+                                    <circle cx="130" cy="48" r="7"/>
+                                    <circle cx="150" cy="48" r="7"/>
+                                    <text x="100" y="50">CHEF'S COUNTER</text>
+                                </g>
+                                
+                                <!-- Dining Room Banquette Tables (Bottom Left) -->
+                                <g class="seat-node" data-seat="banquette">
+                                    <!-- Table 1 -->
+                                    <rect x="35" y="90" width="18" height="18" rx="2"/>
+                                    <circle cx="44" cy="82" r="4"/>
+                                    <circle cx="44" cy="116" r="4"/>
+                                    <!-- Table 2 -->
+                                    <rect x="75" y="90" width="18" height="18" rx="2"/>
+                                    <circle cx="84" cy="82" r="4"/>
+                                    <circle cx="84" cy="116" r="4"/>
+                                    <text x="65" y="102">BANQUETTES</text>
+                                </g>
+                                
+                                <!-- Premium Window Alcoves (Right Side) -->
+                                <g class="seat-node" data-seat="alcove">
+                                    <!-- Alcove Table 1 -->
+                                    <circle cx="155" cy="85" r="10"/>
+                                    <circle cx="140" cy="85" r="4"/>
+                                    <circle cx="170" cy="85" r="4"/>
+                                    
+                                    <!-- Alcove Table 2 -->
+                                    <circle cx="155" cy="120" r="10"/>
+                                    <circle cx="140" cy="120" r="4"/>
+                                    <circle cx="170" cy="120" r="4"/>
+                                    <text x="155" y="105">ALCOVES</text>
+                                </g>
+                            </svg>
+                        </div>
+                        
+                        <div class="floorplan-info-box">
+                            <div id="selected-seating-desc">
+                                <span style="font-size:0.75rem; color:var(--color-secondary);">Click on a seating area on the floor plan map to check descriptions & secure your spot.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3 Column: Information & Upgrades Form -->
+                <div class="booking-card">
+                    <div class="booking-step-title">
+                        <span class="booking-step-num">2</span> Dining Details & Upgrades
+                    </div>
+                    
+                    <form class="booking-form" id="reservation-form" novalidate>
+                        <div class="form-group">
+                            <label for="reserve-name" class="form-label">Full Name</label>
+                            <input type="text" id="reserve-name" class="form-input" placeholder="Eleanor Sterling" required autocomplete="name">
+                            <span class="form-error" id="err-name"></span>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="form-group">
+                                <label for="reserve-phone" class="form-label">Phone Number</label>
+                                <input type="tel" id="reserve-phone" class="form-input" placeholder="(212) 555-0198" required autocomplete="tel">
+                                <span class="form-error" id="err-phone"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reserve-email" class="form-label">Email Address</label>
+                                <input type="email" id="reserve-email" class="form-input" placeholder="eleanor.s@vogue.com" required autocomplete="email">
+                                <span class="form-error" id="err-email"></span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem;">
+                            <div class="form-group form-group-select">
+                                <label for="reserve-occasion" class="form-label">Special Occasion</label>
+                                <select id="reserve-occasion" class="form-input">
+                                    <option value="None">No Occasion</option>
+                                    <option value="Anniversary">Anniversary</option>
+                                    <option value="Birthday">Birthday</option>
+                                    <option value="Date Night">Date Night</option>
+                                    <option value="Business">Business Dining</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group form-group-select">
+                                <label for="reserve-guests" class="form-label">Guests</label>
+                                <select id="reserve-guests" class="form-input">
+                                    <option value="1">1 Guest</option>
+                                    <option value="2" selected>2 Guests</option>
+                                    <option value="3">3 Guests</option>
+                                    <option value="4">4 Guests</option>
+                                    <option value="5">5 Guests</option>
+                                    <option value="6">6 Guests</option>
+                                    <option value="7">7 Guests</option>
+                                    <option value="8">8 Guests</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- --- FEATURE 4: BOOKING EXPERIENCE UPGRADES --- -->
+                        <div class="form-group upgrades-container">
+                            <label class="form-label">Enhance Your Booking (Optional)</label>
+                            <div class="upgrades-grid">
+                                <div class="upgrade-card" data-upgrade="upgrade-cellar">
+                                    <div class="upgrade-checkbox" aria-hidden="true"></div>
+                                    <div class="upgrade-card-details">
+                                        <h5 class="upgrade-card-title">Pre-Dinner Cellar Tour</h5>
+                                        <p style="font-size:0.75rem; color:var(--color-secondary); line-height:1.4;">Pre-dinner tour of our vertical cellars with a library vintage glass.</p>
+                                    </div>
+                                    <span class="upgrade-card-price">Select</span>
+                                </div>
+                                <div class="upgrade-card" data-upgrade="upgrade-flowers">
+                                    <div class="upgrade-checkbox" aria-hidden="true"></div>
+                                    <div class="upgrade-card-details">
+                                        <h5 class="upgrade-card-title">Seasonal Table Florals</h5>
+                                        <p style="font-size:0.75rem; color:var(--color-secondary); line-height:1.4;">A hand-tied organic, seasonal floral arrangement on your table to take home.</p>
+                                    </div>
+                                    <span class="upgrade-card-price">Select</span>
+                                </div>
+                                <div class="upgrade-card" data-upgrade="upgrade-cookbook">
+                                    <div class="upgrade-checkbox" aria-hidden="true"></div>
+                                    <div class="upgrade-card-details">
+                                        <h5 class="upgrade-card-title">Signed Foraging Monograph</h5>
+                                        <p style="font-size:0.75rem; color:var(--color-secondary); line-height:1.4;">A signed copy of the history and micro-seasons of Aether NYC cookbook.</p>
+                                    </div>
+                                    <span class="upgrade-card-price">Select</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reserve-dietary" class="form-label">Dietary Notes & Special Requests</label>
+                            <textarea id="reserve-dietary" class="form-input form-textarea" placeholder="Allergies, seating preferences, etc. (Optional)"></textarea>
+                        </div>
+                        
+                        <span class="form-error" id="err-datetime" style="margin-top:-10px;"></span>
+                        
+                        <!-- Dynamic deposit breakdown wrapper -->
+                        <div id="deposit-breakdown" style="font-size: 0.75rem; border-top: 1px solid var(--color-border); padding-top: 0.75rem; line-height: 1.5;">
+                            <!-- JS populated dynamic breakdown -->
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="submit-booking-btn" style="width: 100%; margin-top: 0.5rem;">Confirm Reservation</button>
+                        
+                        <p class="form-info-note">Reservations are held for 15 minutes. Cancellations must be requested 48 hours prior to reservation.</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- MANAGE RESERVATIONS SECTION --- -->
+    <section class="section section-surface manage-section" id="manage-bookings-section">
+        <div class="container manage-container">
+            <div class="section-header" style="margin-bottom: 3.5rem;">
+                <span class="section-pre">Your Table</span>
+                <h2 class="section-title">Manage Reservations</h2>
+                <div class="gold-line-center"></div>
+                <p class="section-subtitle">Review, reschedule, or cancel your upcoming seatings.</p>
+            </div>
+            
+            <div class="bookings-list" id="bookings-list">
+                <!-- JS populated -->
+            </div>
+            
+            <div class="manage-empty" id="manage-empty" style="display: none;">
+                <div class="manage-empty-icon">⌘</div>
+                <h3 class="font-serif" style="font-size: 1.25rem;">No Bookings Recorded</h3>
+                <p style="max-width: 350px; margin: 0 auto; color: var(--color-secondary);">We could not identify any active reservations on this browser. Click below to register one.</p>
+                <a href="#reserve" class="btn btn-secondary btn-small" style="margin-top: 1rem;">Reserve a Table</a>
+            </div>
+            
+            <div class="lookup-container" style="max-width: 480px; margin: 3.5rem auto 0 auto; border-top: 1px solid var(--color-border); padding-top: 2.5rem; text-align: center;">
+                <h3 class="font-serif" style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--color-gold);">Look Up Your Reservations</h3>
+                <p style="font-size: 0.75rem; color: var(--color-secondary); margin-bottom: 1.5rem;">Enter your email address to retrieve and manage your active bookings from our database.</p>
+                <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                    <input type="email" id="lookup-email" class="form-input" placeholder="eleanor.s@vogue.com" style="max-width: 280px; margin-bottom: 0;">
+                    <button type="button" class="btn btn-primary" id="lookup-btn" style="padding: 0.6rem 1.8rem; font-size: 0.65rem;">Find Bookings</button>
+                </div>
+                <span class="form-error" id="err-lookup" style="display: block; margin-top: 0.5rem;"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- AT HOME TAKEAWAY & GIFTING TAB WRAPPER --- -->
+    <section class="section section-dark" id="athome">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-pre">At Home & Gifting</span>
+                <h2 class="section-title">Aether Vouchers & Culinary Boxes</h2>
+                <div class="gold-line-center"></div>
+                <p class="section-subtitle">Order our signature culinary boxes or issue a personalized, premium dining experience gift voucher.</p>
+            </div>
+            
+            <div class="home-section-tabs">
+                <button type="button" class="home-tab-btn active" id="home-tab-takeaway">Enjoy Aether at Home</button>
+                <button type="button" class="home-tab-btn" id="home-tab-gifting">Gift an Experience</button>
+            </div>
+            
+            <!-- Panel 1: Takeaway Shop -->
+            <div class="home-tab-pane active" id="pane-takeaway">
+                <div class="home-grid">
+                    <div class="home-shop" id="shop-items-list">
+                        <!-- JS populated -->
+                    </div>
+                    
+                    <div class="home-cart-card">
+                        <h3 class="cart-title font-serif">Your Order</h3>
+                        <div class="cart-items-summary" id="cart-summary-items">
+                            <!-- JS populated -->
+                        </div>
+                        
+                        <div class="cart-total-row">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">$0</span>
+                        </div>
+                        <div class="cart-item-row" style="font-size: 0.75rem; color: var(--color-secondary); margin-top: 0.5rem;">
+                            <span>Courier Delivery (Flat)</span>
+                            <span>$15</span>
+                        </div>
+                        <div class="cart-total-row" style="border-top: 1px dashed var(--color-border); padding-top: 0.75rem; font-size: 1.25rem;">
+                            <span>Grand Total</span>
+                            <span id="cart-total">$0</span>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" id="place-order-btn" style="width: 100%; margin-top: 1.5rem;" disabled>Place Order for Delivery</button>
+                        <p class="form-info-note" style="margin-top: 1rem; text-align: center;">Delivery restricted to Manhattan below 96th Street. Courier scheduled for next-day dispatch.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- --- FEATURE 5: EXPERIENCE VOUCHER GIFT SUITE --- -->
+            <div class="home-tab-pane" id="pane-gifting">
+                <div class="gifting-grid">
+                    <!-- Column 1: Customizer Form -->
+                    <div class="gifting-form-container">
+                        <h3 class="font-serif" style="font-size: 1.25rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">Customize Invitation Voucher</h3>
+                        <form class="booking-form" id="gifting-form" novalidate>
+                            <div class="form-group">
+                                <label for="gift-to" class="form-label">Recipient Full Name</label>
+                                <input type="text" id="gift-to" class="form-input" placeholder="Eleanor Sterling" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gift-from" class="form-label">Sender Name</label>
+                                <input type="text" id="gift-from" class="form-input" placeholder="Julian Vance" required>
+                            </div>
+                            <div class="form-group form-group-select">
+                                <label for="gift-package-select" class="form-label">Experience Package</label>
+                                <select id="gift-package-select" class="form-input">
+                                    <option value="gift-1">Solo Connoisseur Journey ($295)</option>
+                                    <option value="gift-2" selected>Duet Tasting Celebration ($590)</option>
+                                    <option value="gift-3">Sommelier Prestige Duet ($940)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="gift-message" class="form-label">Personal Greeting</label>
+                                <textarea id="gift-message" class="form-input form-textarea" placeholder="To celebrate another beautiful micro-season together..."></textarea>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" id="purchase-gift-btn" style="width: 100%; margin-top: 0.5rem;">Purchase Gift Voucher • $590</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Column 2: Live Animated Card Mockup -->
+                    <div class="gift-preview-container">
+                        <div class="gift-card-mockup" id="gift-card-preview-node">
+                            <div class="gift-card-header">
+                                <span class="gift-card-title">Aether</span>
+                                <div class="gift-card-subtitle">New York City</div>
+                            </div>
+                            <div class="gift-card-body">
+                                <span class="gift-card-package" id="gift-card-package-preview">Duet Tasting Celebration ($590)</span>
+                                <div style="margin: 0.5rem 0;">
+                                    <div class="gift-card-to font-serif" id="gift-card-to-preview">Presented to: A Cherished Guest</div>
+                                    <div style="font-size:0.65rem; color:#A39691; text-transform:uppercase; letter-spacing:0.05em; margin-top:3px;" id="gift-card-from-preview">From: A Generous Benefactor</div>
+                                </div>
+                                <p class="gift-card-msg" id="gift-card-message-preview">“An invitation to experience a symphony of micro-seasons at Aether NYC.”</p>
+                            </div>
+                            <div class="gift-card-footer">
+                                <span>REDEEMABLE AT 148 CROSBY STREET, SOHO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- TESTIMONIALS --- -->
+    <section class="section section-surface">
+        <div class="container">
+            <div class="testimonials-slider">
+                <!-- Testimonial 1 -->
+                <div class="testimonial-slide active">
+                    <p class="testimonial-quote">“An absolute masterclass in quiet elegance. The A5 Wagyu prepared over binchotan was culinary poetry, and the service was choreographed like a silent ballet.”</p>
+                    <span class="testimonial-author">Julian Vance — New York Times</span>
+                </div>
+                <!-- Testimonial 2 -->
+                <div class="testimonial-slide">
+                    <p class="testimonial-quote">“Aether accomplishes what few restaurants can: it feels both intensely exclusive and incredibly warm. The white truffle pasta remains unmatched in the city.”</p>
+                    <span class="testimonial-author">Eleanor Sterling — Vogue</span>
+                </div>
+                <!-- Testimonial 3 -->
+                <div class="testimonial-slide">
+                    <p class="testimonial-quote">“The sommelier pairings were revelatory. Every pour felt like a conversation with history. An unforgettable, deeply intimate evening.”</p>
+                    <span class="testimonial-author">Dr. Alistair Croft — Discerning Guest</span>
+                </div>
+                
+                <div class="testimonial-dots">
+                    <button type="button" class="testimonial-dot active" aria-label="Slide 1"></button>
+                    <button type="button" class="testimonial-dot" aria-label="Slide 2"></button>
+                    <button type="button" class="testimonial-dot" aria-label="Slide 3"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- FOOTER --- -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo" style="margin-bottom: 0.5rem;">
+                        <span class="logo-main">Aether</span>
+                        <span class="logo-sub">New York City</span>
+                    </a>
+                    <p class="footer-brand-desc">An intimate, sensory fine-dining sanctuary in Manhattan, securing seasonal ingredients at their absolute pinnacle.</p>
+                </div>
+                
+                <div>
+                    <h4 class="footer-col-title">Sanctuary</h4>
+                    <ul class="footer-links">
+                        <li><span class="footer-link">148 Crosby Street</span></li>
+                        <li><span class="footer-link">New York, NY 10012</span></li>
+                        <li><a href="tel:2125550190" class="footer-link">(212) 555-0190</a></li>
+                        <li><a href="mailto:reservations@aethernyc.com" class="footer-link">reservations@aethernyc.com</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-col-title">Seating Hours</h4>
+                    <ul class="footer-links">
+                        <li><span class="footer-link">Tuesday – Saturday</span></li>
+                        <li><span class="footer-link">First seating: 5:30 PM</span></li>
+                        <li><span class="footer-link">Final seating: 9:30 PM</span></li>
+                        <li><span class="footer-link">Closed Sunday & Monday</span></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-col-title">Legal & Press</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
+                        <li><a href="#" class="footer-link">Terms & Commitments</a></li>
+                        <li><a href="#" class="footer-link">Dietary Compliance</a></li>
+                        <li><a href="#" class="footer-link">Media Enquiries</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <span>&copy; 2026 Aether NYC. All rights reserved. Quiet luxury fine-dining demo.</span>
+                <div class="footer-socials">
+                    <a href="#" class="footer-link" aria-label="Instagram">Instagram</a>
+                    <a href="#" class="footer-link" aria-label="Facebook">Facebook</a>
+                    <a href="#" class="footer-link" aria-label="YouTube">YouTube</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ==================== MODALS SYSTEM ==================== -->
+
+    <!-- Modal 1: Booking Success -->
+    <div class="modal-overlay" id="modal-booking-success" role="dialog" aria-modal="true" aria-labelledby="booking-success-h">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            <div class="success-icon">✓</div>
+            <h3 class="success-title font-serif" id="booking-success-h">Reservation Requested</h3>
+            <p style="text-align: center; font-size: 0.85rem; max-width: 400px; margin: 0 auto 1.5rem auto; color: var(--color-secondary);">We have reserved a seating for you. A deposit receipt, reservation confirmation, and SMS details are detailed below.</p>
+            
+            <div class="success-details">
+                <div class="success-row">
+                    <span class="success-label">Confirmation Number</span>
+                    <span class="success-val" id="success-conf">AE-2026-F91A</span>
+                </div>
+                <div class="success-row">
+                    <span class="success-label">Guest Name</span>
+                    <span class="success-val" id="success-name">Eleanor Sterling</span>
+                </div>
+                <div class="success-row">
+                    <span class="success-label">Party Size</span>
+                    <span class="success-val" id="success-guests">2 guests</span>
+                </div>
+                <div class="success-row">
+                    <span class="success-label">Seating Area</span>
+                    <span class="success-val" id="success-seating">Banquette Seating</span>
+                </div>
+                <div class="success-row">
+                    <span class="success-label">Date Selected</span>
+                    <span class="success-val" id="success-date">Wednesday, July 15, 2026</span>
+                </div>
+                <div class="success-row">
+                    <span class="success-label">Dining Time</span>
+                    <span class="success-val" id="success-time">7:30 PM</span>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-primary modal-dismiss" style="flex: 1; font-size: 0.7rem;">Done</button>
+                <button type="button" class="btn btn-secondary" id="success-google-cal-btn" style="flex: 1; font-size: 0.7rem;">Add to Google Calendar</button>
+            </div>
+            
+            <p class="success-note">An automated confirmation email + SMS has been dispatched. Need adjustments? Manage or reschedule anytime under 'Your Table'.</p>
+        </div>
+    </div>
+
+    <!-- Modal 2: Reschedule Booking -->
+    <div class="modal-overlay" id="modal-reschedule" role="dialog" aria-modal="true" aria-labelledby="reschedule-h">
+        <div class="modal-content" style="max-width: 500px; padding: 2rem;">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            <h3 class="font-serif" id="reschedule-h" style="font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center;">Reschedule Reservation</h3>
+            
+            <div style="font-size: 0.8rem; margin-bottom: 1.5rem; background-color: var(--color-surface); padding: 1rem; border: 1px solid var(--color-border);">
+                Rescheduling reservation for: <strong class="text-gold" id="resched-name">Eleanor Sterling</strong>
+            </div>
+            
+            <div class="form-group form-group-select" style="margin-bottom: 1.5rem;">
+                <label for="resched-guests" class="form-label">Adjust Guest Count</label>
+                <select id="resched-guests" class="form-input">
+                    <option value="1">1 Guest</option>
+                    <option value="2">2 Guests</option>
+                    <option value="3">3 Guests</option>
+                    <option value="4">4 Guests</option>
+                    <option value="5">5 Guests</option>
+                    <option value="6">6 Guests</option>
+                    <option value="7">7 Guests</option>
+                    <option value="8">8 Guests</option>
+                </select>
+            </div>
+
+            <!-- Reschedule Calendar -->
+            <div class="calendar-widget" style="margin-bottom: 1.5rem;">
+                <div class="calendar-header" style="margin-bottom: 1rem;">
+                    <button type="button" class="calendar-btn-nav" id="resched-cal-prev" aria-label="Previous month">&larr;</button>
+                    <span class="calendar-month" id="resched-cal-month">October 2026</span>
+                    <button type="button" class="calendar-btn-nav" id="resched-cal-next" aria-label="Next month">&rarr;</button>
+                </div>
+                <div class="calendar-weekdays" style="margin-bottom: 0.5rem;">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                </div>
+                <div class="calendar-days" id="resched-cal-days" style="gap: 4px;">
+                    <!-- JS populated -->
+                </div>
+            </div>
+
+            <!-- Reschedule Time Slots -->
+            <div style="margin-bottom: 2rem;">
+                <h4 class="form-label" style="margin-bottom: 0.5rem;">Select New Dining Time</h4>
+                <div class="time-slots-grid" id="resched-time-slots-grid" style="grid-template-columns: repeat(4, 1fr); gap: 4px;">
+                    <!-- JS populated -->
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="button" class="btn btn-secondary modal-dismiss" style="flex: 1; font-size: 0.7rem;">Dismiss</button>
+                <button type="button" class="btn btn-primary" id="submit-reschedule-btn" style="flex: 1; font-size: 0.7rem;">Update Reservation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Cancellation Confirm -->
+    <div class="modal-overlay" id="modal-cancel-confirm" role="dialog" aria-modal="true" aria-labelledby="cancel-confirm-h">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            <h3 class="font-serif" id="cancel-confirm-h" style="font-size: 1.5rem; text-align: center; margin-bottom: 1.5rem; color: var(--color-danger);">Release Reservation?</h3>
+            <p style="text-align: center; font-size: 0.85rem; margin-bottom: 1.5rem; color: var(--color-secondary);">Are you certain you wish to release your table at Aether NYC? This will cancel your reservation.</p>
+            
+            <div class="form-group form-group-select" style="margin-bottom: 2rem;">
+                <label for="cancel-reason" class="form-label">Reason for Cancellation (Optional)</label>
+                <select id="cancel-reason" class="form-input">
+                    <option value="Schedule Conflict">Schedule Conflict</option>
+                    <option value="Travel Adjustment">Travel Adjustment</option>
+                    <option value="Health / Personal Reasons">Health / Personal Reasons</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="button" class="btn btn-secondary modal-dismiss" style="flex: 1; font-size: 0.7rem;">Keep My Table</button>
+                <button type="button" class="btn btn-primary" id="confirm-cancel-btn" style="flex: 1; font-size: 0.7rem; background-color: var(--color-danger); border-color: var(--color-danger);">Confirm Cancellation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Takeaway Order Success -->
+    <div class="modal-overlay" id="modal-takeaway-success" role="dialog" aria-modal="true" aria-labelledby="takeaway-success-h">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            <div class="success-icon">✓</div>
+            <h3 class="success-title font-serif" id="takeaway-success-h">Order Received</h3>
+            <p style="text-align: center; font-size: 0.85rem; margin-bottom: 1.5rem; color: var(--color-secondary);">Your order has been processed. Detailed receipt and delivery updates are summarized below.</p>
+            
+            <div class="success-details">
+                <div class="success-row">
+                    <span class="success-label">Order Number</span>
+                    <span class="success-val" id="takeaway-order-num">ORD-2026-892182</span>
+                </div>
+                <div class="success-row">
+                    <span class="success-label">Courier Method</span>
+                    <span class="success-val">Manhattan Hand-delivery</span>
+                </div>
+                <div class="success-row">
+                    <span class="success-label">Fulfillment Time</span>
+                    <span class="success-val">Tomorrow, between 1:00 PM – 4:00 PM</span>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-primary modal-dismiss" style="width: 100%; font-size: 0.75rem; margin-top: 1rem;">Acknowledge</button>
+            <p class="success-note">A confirmation copy has been dispatched to your registered contact. For courier updates, call our service desk directly.</p>
+        </div>
+    </div>
+
+    <!-- Modal 5: Syncing Loading State -->
+    <div class="modal-overlay" id="modal-sync-loading" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal-content" style="max-width: 350px; text-align: center; padding: 3rem 2rem;">
+            <div class="sync-loader-container">
+                <div class="sync-spinner"></div>
+                <span class="font-serif text-gold" style="font-size: 1.15rem; letter-spacing: 0.05em;">Connecting Services...</span>
+                <p style="font-size: 0.75rem; color: var(--color-secondary); line-height: 1.5;">Securing handshake and syncing booking credentials to Google Calendar...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- --- SCRIPTS --- -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
