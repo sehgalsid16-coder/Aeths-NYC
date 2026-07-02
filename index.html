@@ -562,9 +562,10 @@
                             <!-- JS populated dynamic breakdown -->
                         </div>
                         
-                        <button type="submit" class="btn btn-primary" id="submit-booking-btn" style="width: 100%; margin-top: 0.5rem;">Confirm Reservation</button>
-                        
-                        <p class="form-info-note">Reservations are held for 15 minutes. Cancellations must be requested 48 hours prior to reservation.</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <button type="submit" class="btn btn-primary" id="submit-booking-btn" style="flex: 1;">Confirm Reservation</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-booking-form-btn" style="flex: 1;">Cancel</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -581,10 +582,7 @@
                 <p class="section-subtitle">Review, reschedule, or cancel your upcoming seatings and private dining packages.</p>
             </div>
 
-            <!-- Google Calendar Global Sync Button -->
-            <div style="text-align: center; margin-bottom: 2.5rem;">
-                <button type="button" class="btn btn-secondary btn-small" id="sync-all-cal-btn" style="border-color: var(--color-gold-muted); color: var(--color-gold); font-size: 0.7rem; padding: 0.5rem 1.5rem;">Sync Portal with Google Calendar</button>
-            </div>
+
             
             <!-- Portal Tabs -->
             <div class="portal-tabs" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
@@ -712,10 +710,6 @@
                         </div>
                         
                         <button type="button" class="btn btn-primary" id="place-order-btn" style="width: 100%; margin-top: 1.5rem;" disabled>Place Takeaway Order</button>
-                        <p class="form-info-note" id="takeaway-note" style="margin-top: 1rem; text-align: center;">Delivery restricted to Manhattan below 96th Street. Courier scheduled for next-day dispatch.</p>
-                        <p class="form-info-note" style="margin-top: 0.5rem; text-align: center; font-size: 0.6rem; opacity: 0.6;">
-                            This is a fully functional demo. In production we connect real email, SMS, and optional Supabase backend.
-                        </p>
                     </div>
                 </div>
             </div>
@@ -869,7 +863,7 @@
             <button class="modal-close" aria-label="Close modal">&times;</button>
             <div class="success-icon">✓</div>
             <h3 class="success-title font-serif" id="booking-success-h">Reservation Requested</h3>
-            <p style="text-align: center; font-size: 0.85rem; max-width: 400px; margin: 0 auto 1.5rem auto; color: var(--color-secondary);">We have reserved a seating for you. A deposit receipt, reservation confirmation, and SMS details are detailed below.</p>
+            <p style="text-align: center; font-size: 0.85rem; max-width: 400px; margin: 0 auto 1.5rem auto; color: var(--color-secondary);">We have reserved a seating for you. & Here are your details.</p>
             
             <div class="success-details">
                 <div class="success-row">
@@ -896,18 +890,15 @@
                     <span class="success-label">Dining Time</span>
                     <span class="success-val" id="success-time">7:30 PM</span>
                 </div>
-                <div class="success-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
-                    <span class="success-label">Calendar Status</span>
-                    <span class="success-val" id="success-calendar-status" style="font-size: 0.75rem; font-weight: normal; color: var(--color-gold);">✓ Added to Google Calendar (Demo Mode)</span>
-                </div>
             </div>
             
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button type="button" class="btn btn-secondary" id="success-google-cal-btn" style="flex: 1; font-size: 0.7rem;">View in Calendar</button>
-                <button type="button" class="btn btn-primary" id="success-manage-btn" style="flex: 1; font-size: 0.7rem;">Manage My Booking</button>
+                <button type="button" class="btn btn-secondary" id="success-reschedule-btn" style="flex: 1; font-size: 0.7rem;">Reschedule</button>
+                <button type="button" class="btn btn-secondary" id="success-cancel-btn" style="flex: 1; font-size: 0.7rem; border-color: rgba(217, 140, 140, 0.2); color: var(--color-danger);">Cancel</button>
             </div>
-            
-            <p class="success-note">An automated confirmation email + SMS has been dispatched. Need adjustments? Manage or reschedule anytime under 'Your Table'.</p>
+            <div style="margin-top: 1rem;">
+                <button type="button" class="btn btn-primary modal-dismiss" style="width: 100%; font-size: 0.7rem;">Done</button>
+            </div>
         </div>
     </div>
 
@@ -1029,16 +1020,7 @@
         </div>
     </div>
 
-    <!-- Modal 5: Syncing Loading State -->
-    <div class="modal-overlay" id="modal-sync-loading" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="modal-content" style="max-width: 350px; text-align: center; padding: 3rem 2rem;">
-            <div class="sync-loader-container">
-                <div class="sync-spinner"></div>
-                <span class="font-serif text-gold" style="font-size: 1.15rem; letter-spacing: 0.05em;">Connecting Services...</span>
-                <p style="font-size: 0.75rem; color: var(--color-secondary); line-height: 1.5;">Securing handshake and syncing booking credentials to Google Calendar...</p>
-            </div>
-        </div>
-    </div>
+
 
 
     <!-- --- SCRIPTS --- -->

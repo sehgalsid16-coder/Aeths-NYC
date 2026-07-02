@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const location = encodeURIComponent("Aether NYC, New York City, NY");
         
         return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}&add=sehgal.sid16@gmail.com`;
-    };
+    };    let bookingIdToCancel = null;
 
     // Load initial fallback bookings and orders
     const initLocalStorage = () => {
@@ -892,6 +892,33 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Cancel button in booking form
+    const cancelFormBtn = document.getElementById("cancel-booking-form-btn");
+    if (cancelFormBtn) {
+        cancelFormBtn.addEventListener("click", () => {
+            elements.bookingForm.reset();
+            state.selectedDate = null;
+            state.selectedTimeSlot = null;
+            state.selectedSeatType = null;
+            state.selectedUpgrades = [];
+            
+            if (elements.timeSlotsWrapper) elements.timeSlotsWrapper.style.display = "none";
+            if (elements.floorplanWrapper) elements.floorplanWrapper.style.display = "none";
+            elements.seatNodes.forEach(n => n.classList.remove("selected"));
+            elements.upgradeCards.forEach(c => {
+                c.classList.remove("active");
+                c.querySelector(".upgrade-checkbox").textContent = "";
+            });
+            if (elements.depositBreakdown) elements.depositBreakdown.innerHTML = "";
+            
+            updateBookingCalendar();
+            
+            // Scroll back to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            showToast("Booking Form Reset", "Seating selection has been cleared.");
+        });
+    }
+
     const showSuccessModal = (booking) => {
         document.getElementById("success-conf").textContent = booking.id;
         document.getElementById("success-name").textContent = booking.name;
@@ -904,43 +931,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const areaDetails = window.AetherData.seatingLocations[booking.seatType];
         document.getElementById("success-seating").textContent = areaDetails ? areaDetails.name : "Main dining";
         
-        const calBtn = document.getElementById("success-google-cal-btn");
-        if (calBtn) {
-            const newCalBtn = calBtn.cloneNode(true);
-            calBtn.parentNode.replaceChild(newCalBtn, calBtn);
-            newCalBtn.addEventListener("click", () => {
-                elements.syncLoadingModal.classList.add("active");
-                setTimeout(() => {
-                    elements.syncLoadingModal.classList.remove("active");
-                    const calUrl = generateGoogleCalendarLink(booking);
-                    window.open(calUrl, "_blank");
-                    showToast("Calendar Updated", "Reservation added to Google Calendar.");
-                }, 1200);
+        const successRescheduleBtn = document.getElementById("success-reschedule-btn");
+        if (successRescheduleBtn) {
+            const newReschedBtn = successRescheduleBtn.cloneNode(true);
+            successRescheduleBtn.parentNode.replaceChild(newReschedBtn, successRescheduleBtn);
+            newReschedBtn.addEventListener("click", () => {
+                elements.bookingSuccessModal.classList.remove("active");
+                openRescheduleModal(booking.id);
             });
         }
 
-        const manageBtn = document.getElementById("success-manage-btn");
-        if (manageBtn) {
-            const newManageBtn = manageBtn.cloneNode(true);
-            manageBtn.parentNode.replaceChild(newManageBtn, manageBtn);
-            newManageBtn.addEventListener("click", () => {
+        const successCancelBtn = document.getElementById("success-cancel-btn");
+        if (successCancelBtn) {
+            const newCancelBtn = successCancelBtn.cloneNode(true);
+            successCancelBtn.parentNode.replaceChild(newCancelBtn, successCancelBtn);
+            newCancelBtn.addEventListener("click", () => {
                 elements.bookingSuccessModal.classList.remove("active");
-                const manageSection = document.getElementById("manage-bookings-section");
-                if (manageSection) {
-                    manageSection.scrollIntoView({ behavior: 'smooth' });
-                }
-                const lookupEmail = document.getElementById("lookup-email");
-                if (lookupEmail) {
-                    lookupEmail.value = booking.email;
-                }
-                const lookupButton = document.getElementById("lookup-btn");
-                if (lookupButton) {
-                    // Trigger lookup click after letting page scroll
-                    setTimeout(() => {
-                        switchPortalTab("bookings");
-                        lookupButton.click();
-                    }, 500);
-                }
+                bookingIdToCancel = booking.id;
+                elements.cancelModal.classList.add("active");
             });
         }
         
@@ -1023,15 +1031,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.portalTabOrders.addEventListener("click", () => switchPortalTab("orders"));
     }
 
-    if (elements.syncAllCalBtn) {
-        elements.syncAllCalBtn.addEventListener("click", () => {
-            elements.syncLoadingModal.classList.add("active");
-            setTimeout(() => {
-                elements.syncLoadingModal.classList.remove("active");
-                showToast("Portal Synced", "All upcoming reservations and orders successfully synced with Google Calendar.");
-            }, 1800);
-        });
-    }
+
 
     if (lookupBtn) {
         lookupBtn.addEventListener("click", async () => {
@@ -1164,7 +1164,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     ${booking.dietary ? `<div style="font-size:0.75rem; color:var(--color-secondary); margin-top:0.25rem;">Note: ${booking.dietary}</div>` : ''}
                 </div>
                 <div class="booking-item-actions">
-                    <a class="btn btn-secondary btn-small calendar-sync-btn" style="border-color:rgba(212,175,55,0.2); color:var(--color-gold); text-decoration:none; display:inline-flex; align-items:center;" href="${generateGoogleCalendarLink(booking)}" target="_blank">Add to Calendar</a>
                     <button class="btn btn-secondary btn-small reschedule-btn" data-id="${booking.id}">Reschedule</button>
                     <button class="btn btn-secondary btn-small cancel-btn" style="border-color:rgba(217,140,140,0.2); color:var(--color-danger);" data-id="${booking.id}">Cancel</button>
                 </div>
@@ -1241,7 +1240,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Cancellation flow confirm
-    let bookingIdToCancel = null;
     const confirmCancelBtn = document.getElementById("confirm-cancel-btn");
     if (confirmCancelBtn) {
         confirmCancelBtn.addEventListener("click", () => {
