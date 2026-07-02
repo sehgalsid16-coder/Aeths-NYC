@@ -88,7 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const location = encodeURIComponent("Aether NYC, New York City, NY");
         
         return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}&add=sehgal.sid16@gmail.com`;
-    };    let bookingIdToCancel = null;
+    };
+    let bookingIdToCancel = null;
 
     // Load initial fallback bookings and orders
     const initLocalStorage = () => {
@@ -202,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
         manageEmpty: document.getElementById("manage-empty"),
         portalTabBookings: document.getElementById("portal-tab-bookings"),
         portalTabOrders: document.getElementById("portal-tab-orders"),
-        syncAllCalBtn: document.getElementById("sync-all-cal-btn"),
         
         // At Home Takeaway & Gifting Tabs
         homeTabTakeaway: document.getElementById("home-tab-takeaway"),
@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
         takeawayAddress: document.getElementById("takeaway-address"),
         takeawayInstructions: document.getElementById("takeaway-instructions"),
         takeawayAddressContainer: document.getElementById("takeaway-address-container"),
-        takeawayNote: document.getElementById("takeaway-note"),
+
         
         // Gifting Suite
         inputGiftTo: document.getElementById("gift-to"),
@@ -252,8 +252,6 @@ document.addEventListener("DOMContentLoaded", () => {
         rescheduleModal: document.getElementById("modal-reschedule"),
         cancelModal: document.getElementById("modal-cancel-confirm"),
         takeawaySuccessModal: document.getElementById("modal-takeaway-success"),
-        syncLoadingModal: document.getElementById("modal-sync-loading"),
-        successManageBtn: document.getElementById("success-manage-btn"),
         takeawayViewOrdersBtn: document.getElementById("takeaway-view-orders-btn"),
         
         // Toast Container
@@ -962,7 +960,6 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.rescheduleModal.classList.remove("active");
             elements.cancelModal.classList.remove("active");
             elements.takeawaySuccessModal.classList.remove("active");
-            elements.syncLoadingModal.classList.remove("active");
         });
     });
 
