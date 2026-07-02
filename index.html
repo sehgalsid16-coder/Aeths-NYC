@@ -576,30 +576,49 @@
         <div class="container manage-container">
             <div class="section-header" style="margin-bottom: 3.5rem;">
                 <span class="section-pre">Your Table</span>
-                <h2 class="section-title">Manage Reservations</h2>
+                <h2 class="section-title">Manage Reservations & Orders</h2>
                 <div class="gold-line-center"></div>
-                <p class="section-subtitle">Review, reschedule, or cancel your upcoming seatings.</p>
+                <p class="section-subtitle">Review, reschedule, or cancel your upcoming seatings and private dining packages.</p>
+            </div>
+
+            <!-- Google Calendar Global Sync Button -->
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <button type="button" class="btn btn-secondary btn-small" id="sync-all-cal-btn" style="border-color: var(--color-gold-muted); color: var(--color-gold); font-size: 0.7rem; padding: 0.5rem 1.5rem;">Sync Portal with Google Calendar</button>
+            </div>
+            
+            <!-- Portal Tabs -->
+            <div class="portal-tabs" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+                <button type="button" class="portal-tab-btn active" id="portal-tab-bookings">My Bookings</button>
+                <button type="button" class="portal-tab-btn" id="portal-tab-orders">My Orders</button>
             </div>
             
             <div class="bookings-list" id="bookings-list">
-                <!-- JS populated -->
+                <!-- JS populated Bookings -->
+            </div>
+
+            <div class="orders-list" id="orders-list" style="display: none; flex-direction: column; gap: 1.5rem;">
+                <!-- JS populated Orders -->
             </div>
             
             <div class="manage-empty" id="manage-empty" style="display: none;">
                 <div class="manage-empty-icon">⌘</div>
-                <h3 class="font-serif" style="font-size: 1.25rem;">No Bookings Recorded</h3>
-                <p style="max-width: 350px; margin: 0 auto; color: var(--color-secondary);">We could not identify any active reservations on this browser. Click below to register one.</p>
-                <a href="#reserve" class="btn btn-secondary btn-small" style="margin-top: 1rem;">Reserve a Table</a>
+                <h3 class="font-serif" style="font-size: 1.25rem;" id="manage-empty-title">No Bookings Recorded</h3>
+                <p style="max-width: 350px; margin: 0 auto; color: var(--color-secondary);" id="manage-empty-desc">We could not identify any active reservations on this browser. Click below to register one.</p>
+                <a href="#reserve" class="btn btn-secondary btn-small" id="manage-empty-cta" style="margin-top: 1rem;">Reserve a Table</a>
             </div>
             
             <div class="lookup-container" style="max-width: 480px; margin: 3.5rem auto 0 auto; border-top: 1px solid var(--color-border); padding-top: 2.5rem; text-align: center;">
-                <h3 class="font-serif" style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--color-gold);">Look Up Your Reservations</h3>
-                <p style="font-size: 0.75rem; color: var(--color-secondary); margin-bottom: 1.5rem;">Enter your email address to retrieve and manage your active bookings from our database.</p>
+                <h3 class="font-serif" style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--color-gold);">Look Up Your Reservations & Orders</h3>
+                <p style="font-size: 0.75rem; color: var(--color-secondary); margin-bottom: 1.5rem;">Enter your email address to retrieve and manage your active bookings and takeaway orders.</p>
                 <div style="display: flex; gap: 0.75rem; justify-content: center;">
                     <input type="email" id="lookup-email" class="form-input" placeholder="eleanor.s@vogue.com" style="max-width: 280px; margin-bottom: 0;">
-                    <button type="button" class="btn btn-primary" id="lookup-btn" style="padding: 0.6rem 1.8rem; font-size: 0.65rem;">Find Bookings</button>
+                    <button type="button" class="btn btn-primary" id="lookup-btn" style="padding: 0.6rem 1.8rem; font-size: 0.65rem;">Find Credentials</button>
                 </div>
                 <span class="form-error" id="err-lookup" style="display: block; margin-top: 0.5rem;"></span>
+                
+                <p style="font-size: 0.65rem; color: var(--color-secondary); opacity: 0.7; margin-top: 2.5rem; line-height: 1.5;">
+                    This is a fully functional demo. Real bookings and orders sync to your calendar and email in production.
+                </p>
             </div>
         </div>
     </section>
@@ -632,21 +651,71 @@
                             <!-- JS populated -->
                         </div>
                         
-                        <div class="cart-total-row">
-                            <span>Subtotal</span>
-                            <span id="cart-subtotal">$0</span>
+                        <!-- Order Type Toggle -->
+                        <div class="order-type-container" style="margin-bottom: 1.5rem;">
+                            <label class="form-label" style="display: block; margin-bottom: 0.5rem;">Fulfillment Method</label>
+                            <div class="segmented-control">
+                                <input type="radio" id="type-delivery" name="takeaway-type" value="delivery" checked style="display: none;">
+                                <label for="type-delivery" class="segment-btn active">Delivery</label>
+                                
+                                <input type="radio" id="type-pickup" name="takeaway-type" value="pickup" style="display: none;">
+                                <label for="type-pickup" class="segment-btn">Pickup</label>
+                            </div>
                         </div>
-                        <div class="cart-item-row" style="font-size: 0.75rem; color: var(--color-secondary); margin-top: 0.5rem;">
-                            <span>Courier Delivery (Flat)</span>
-                            <span>$15</span>
+
+                        <!-- Customer Details Form -->
+                        <div class="takeaway-form-fields" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; border-top: 1px dashed var(--color-border); padding-top: 1.5rem;">
+                            <div class="form-group">
+                                <label for="takeaway-name" class="form-label">Full Name</label>
+                                <input type="text" id="takeaway-name" class="form-input" placeholder="Eleanor Sterling" required autocomplete="name">
+                                <span class="form-error" id="err-takeaway-name"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="takeaway-phone" class="form-label">Phone Number</label>
+                                <input type="tel" id="takeaway-phone" class="form-input" placeholder="(212) 555-0198" required autocomplete="tel">
+                                <span class="form-error" id="err-takeaway-phone"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="takeaway-email" class="form-label">Email Address</label>
+                                <input type="email" id="takeaway-email" class="form-input" placeholder="eleanor.s@vogue.com" required autocomplete="email">
+                                <span class="form-error" id="err-takeaway-email"></span>
+                            </div>
+                            
+                            <div class="form-group" id="takeaway-address-container">
+                                <label for="takeaway-address" class="form-label">Delivery Address</label>
+                                <input type="text" id="takeaway-address" class="form-input" placeholder="123 Fifth Avenue, Apt 4B, New York, NY" required>
+                                <span class="form-error" id="err-takeaway-address"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="takeaway-instructions" class="form-label">Special Instructions</label>
+                                <input type="text" id="takeaway-instructions" class="form-input" placeholder="Leave at door / allergies / gate code (Optional)">
+                            </div>
                         </div>
-                        <div class="cart-total-row" style="border-top: 1px dashed var(--color-border); padding-top: 0.75rem; font-size: 1.25rem;">
-                            <span>Grand Total</span>
-                            <span id="cart-total">$0</span>
+
+                        <!-- Pricing Breakdown -->
+                        <div style="border-top: 1px dashed var(--color-border); padding-top: 1.5rem;">
+                            <div class="cart-item-row" style="margin-bottom: 0.5rem;">
+                                <span>Subtotal</span>
+                                <span id="cart-subtotal">$0</span>
+                            </div>
+                            <div class="cart-item-row" id="cart-delivery-row" style="font-size: 0.75rem; color: var(--color-secondary); margin-bottom: 0.5rem;">
+                                <span>Courier Delivery</span>
+                                <span id="cart-delivery-fee">$15</span>
+                            </div>
+                            <div class="cart-total-row" style="border-top: 1px solid var(--color-border); padding-top: 0.75rem; font-size: 1.25rem;">
+                                <span>Grand Total</span>
+                                <span id="cart-total">$0</span>
+                            </div>
                         </div>
                         
-                        <button type="button" class="btn btn-primary" id="place-order-btn" style="width: 100%; margin-top: 1.5rem;" disabled>Place Order for Delivery</button>
-                        <p class="form-info-note" style="margin-top: 1rem; text-align: center;">Delivery restricted to Manhattan below 96th Street. Courier scheduled for next-day dispatch.</p>
+                        <button type="button" class="btn btn-primary" id="place-order-btn" style="width: 100%; margin-top: 1.5rem;" disabled>Place Takeaway Order</button>
+                        <p class="form-info-note" id="takeaway-note" style="margin-top: 1rem; text-align: center;">Delivery restricted to Manhattan below 96th Street. Courier scheduled for next-day dispatch.</p>
+                        <p class="form-info-note" style="margin-top: 0.5rem; text-align: center; font-size: 0.6rem; opacity: 0.6;">
+                            This is a fully functional demo. In production we connect real email, SMS, and optional Supabase backend.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -796,7 +865,7 @@
 
     <!-- Modal 1: Booking Success -->
     <div class="modal-overlay" id="modal-booking-success" role="dialog" aria-modal="true" aria-labelledby="booking-success-h">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 500px;">
             <button class="modal-close" aria-label="Close modal">&times;</button>
             <div class="success-icon">✓</div>
             <h3 class="success-title font-serif" id="booking-success-h">Reservation Requested</h3>
@@ -827,11 +896,15 @@
                     <span class="success-label">Dining Time</span>
                     <span class="success-val" id="success-time">7:30 PM</span>
                 </div>
+                <div class="success-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                    <span class="success-label">Calendar Status</span>
+                    <span class="success-val" id="success-calendar-status" style="font-size: 0.75rem; font-weight: normal; color: var(--color-gold);">✓ Added to Google Calendar (Demo Mode)</span>
+                </div>
             </div>
             
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button type="button" class="btn btn-primary modal-dismiss" style="flex: 1; font-size: 0.7rem;">Done</button>
-                <button type="button" class="btn btn-secondary" id="success-google-cal-btn" style="flex: 1; font-size: 0.7rem;">Add to Google Calendar</button>
+                <button type="button" class="btn btn-secondary" id="success-google-cal-btn" style="flex: 1; font-size: 0.7rem;">View in Calendar</button>
+                <button type="button" class="btn btn-primary" id="success-manage-btn" style="flex: 1; font-size: 0.7rem;">Manage My Booking</button>
             </div>
             
             <p class="success-note">An automated confirmation email + SMS has been dispatched. Need adjustments? Manage or reschedule anytime under 'Your Table'.</p>
@@ -918,11 +991,11 @@
 
     <!-- Modal 4: Takeaway Order Success -->
     <div class="modal-overlay" id="modal-takeaway-success" role="dialog" aria-modal="true" aria-labelledby="takeaway-success-h">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 500px;">
             <button class="modal-close" aria-label="Close modal">&times;</button>
             <div class="success-icon">✓</div>
             <h3 class="success-title font-serif" id="takeaway-success-h">Order Received</h3>
-            <p style="text-align: center; font-size: 0.85rem; margin-bottom: 1.5rem; color: var(--color-secondary);">Your order has been processed. Detailed receipt and delivery updates are summarized below.</p>
+            <p style="text-align: center; font-size: 0.85rem; margin-bottom: 1.5rem; color: var(--color-secondary);">Your order has been processed. A detailed receipt and fulfillment details are summarized below.</p>
             
             <div class="success-details">
                 <div class="success-row">
@@ -930,17 +1003,29 @@
                     <span class="success-val" id="takeaway-order-num">ORD-2026-892182</span>
                 </div>
                 <div class="success-row">
-                    <span class="success-label">Courier Method</span>
-                    <span class="success-val">Manhattan Hand-delivery</span>
+                    <span class="success-label">Fulfillment Type</span>
+                    <span class="success-val" id="takeaway-order-type">Manhattan Hand-delivery</span>
                 </div>
                 <div class="success-row">
                     <span class="success-label">Fulfillment Time</span>
-                    <span class="success-val">Tomorrow, between 1:00 PM – 4:00 PM</span>
+                    <span class="success-val" id="takeaway-order-time">Tomorrow, between 1:00 PM – 4:00 PM</span>
+                </div>
+                <div class="success-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                    <span class="success-label">Items Ordered</span>
+                    <span class="success-val" id="takeaway-order-items" style="font-size: 0.75rem; font-weight: normal; color: var(--color-secondary); text-align: left;">1x The Aether Caviar & Champagne Box</span>
+                </div>
+                <div class="success-row">
+                    <span class="success-label">Amount Paid</span>
+                    <span class="success-val" id="takeaway-order-total" style="color: var(--color-gold); font-weight: bold;">$260</span>
                 </div>
             </div>
             
-            <button type="button" class="btn btn-primary modal-dismiss" style="width: 100%; font-size: 0.75rem; margin-top: 1rem;">Acknowledge</button>
-            <p class="success-note">A confirmation copy has been dispatched to your registered contact. For courier updates, call our service desk directly.</p>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-secondary modal-dismiss" style="flex: 1; font-size: 0.7rem;">Done</button>
+                <button type="button" class="btn btn-primary" id="takeaway-view-orders-btn" style="flex: 1; font-size: 0.7rem;">View My Orders</button>
+            </div>
+            
+            <p class="success-note">An automated confirmation email + SMS has been dispatched. For courier updates, call our service desk directly.</p>
         </div>
     </div>
 

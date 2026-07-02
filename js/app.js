@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let state = {
         bookings: [],
         displayedBookings: [],
+        orders: [],
+        displayedOrders: [],
         currentMonth: new Date(),
         selectedDate: null,
         selectedTimeSlot: null,
@@ -22,7 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
         rescheduleSelectedTime: null,
         cart: {},
         activeTestimonial: 0,
-        activeTimelineMonth: 0
+        activeTimelineMonth: 0,
+        activePortalTab: "bookings"
     };
 
     // --- SUPABASE CONFIGURATION ---
@@ -87,11 +90,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}&add=sehgal.sid16@gmail.com`;
     };
 
-    // Load initial fallback bookings
+    // Load initial fallback bookings and orders
     const initLocalStorage = () => {
-        const stored = localStorage.getItem("aether_bookings");
-        if (stored) {
-            state.bookings = JSON.parse(stored).map(b => {
+        // Bookings
+        const storedBookings = localStorage.getItem("aether_bookings");
+        if (storedBookings) {
+            state.bookings = JSON.parse(storedBookings).map(b => {
                 if (b.date) b.date = new Date(b.date);
                 return b;
             });
@@ -118,10 +122,36 @@ document.addEventListener("DOMContentLoaded", () => {
             state.bookings = [seedBooking];
             saveBookingsToStorage();
         }
+
+        // Takeaway Orders
+        const storedOrders = localStorage.getItem("aether_orders");
+        if (storedOrders) {
+            state.orders = JSON.parse(storedOrders);
+        } else {
+            const seedOrder = {
+                id: "ORD-2026-892182",
+                name: "Eleanor Sterling",
+                phone: "(212) 555-0198",
+                email: "eleanor.s@vogue.com",
+                type: "delivery",
+                address: "Avenue of the Americas, Vogue Tower, NYC",
+                items: { "The Aether Caviar & Champagne Box": 1 },
+                subtotal: 245,
+                total: 260,
+                instructions: "Please leave with front desk.",
+                createdAt: new Date().toISOString()
+            };
+            state.orders = [seedOrder];
+            saveOrdersToStorage();
+        }
     };
 
     const saveBookingsToStorage = () => {
         localStorage.setItem("aether_bookings", JSON.stringify(state.bookings));
+    };
+
+    const saveOrdersToStorage = () => {
+        localStorage.setItem("aether_orders", JSON.stringify(state.orders));
     };
 
     // --- DOM ELEMENT CACHE ---
@@ -166,9 +196,13 @@ document.addEventListener("DOMContentLoaded", () => {
         depositBreakdown: document.getElementById("deposit-breakdown"),
         submitBtn: document.getElementById("submit-booking-btn"),
         
-        // Manage Bookings
+        // Manage Bookings & Orders
         bookingsList: document.getElementById("bookings-list"),
+        ordersList: document.getElementById("orders-list"),
         manageEmpty: document.getElementById("manage-empty"),
+        portalTabBookings: document.getElementById("portal-tab-bookings"),
+        portalTabOrders: document.getElementById("portal-tab-orders"),
+        syncAllCalBtn: document.getElementById("sync-all-cal-btn"),
         
         // At Home Takeaway & Gifting Tabs
         homeTabTakeaway: document.getElementById("home-tab-takeaway"),
@@ -176,12 +210,19 @@ document.addEventListener("DOMContentLoaded", () => {
         paneTakeaway: document.getElementById("pane-takeaway"),
         paneGifting: document.getElementById("pane-gifting"),
         
-        // Takeaway Cart
+        // Takeaway Cart & Checkout Fields
         shopItemsList: document.getElementById("shop-items-list"),
         cartSummary: document.getElementById("cart-summary-items"),
         cartSubtotal: document.getElementById("cart-subtotal"),
         cartTotal: document.getElementById("cart-total"),
         placeOrderBtn: document.getElementById("place-order-btn"),
+        takeawayName: document.getElementById("takeaway-name"),
+        takeawayPhone: document.getElementById("takeaway-phone"),
+        takeawayEmail: document.getElementById("takeaway-email"),
+        takeawayAddress: document.getElementById("takeaway-address"),
+        takeawayInstructions: document.getElementById("takeaway-instructions"),
+        takeawayAddressContainer: document.getElementById("takeaway-address-container"),
+        takeawayNote: document.getElementById("takeaway-note"),
         
         // Gifting Suite
         inputGiftTo: document.getElementById("gift-to"),
@@ -212,6 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
         cancelModal: document.getElementById("modal-cancel-confirm"),
         takeawaySuccessModal: document.getElementById("modal-takeaway-success"),
         syncLoadingModal: document.getElementById("modal-sync-loading"),
+        successManageBtn: document.getElementById("success-manage-btn"),
+        takeawayViewOrdersBtn: document.getElementById("takeaway-view-orders-btn"),
         
         // Toast Container
         toastContainer: document.getElementById("toast-container")
@@ -866,9 +909,38 @@ document.addEventListener("DOMContentLoaded", () => {
             const newCalBtn = calBtn.cloneNode(true);
             calBtn.parentNode.replaceChild(newCalBtn, calBtn);
             newCalBtn.addEventListener("click", () => {
-                const calUrl = generateGoogleCalendarLink(booking);
-                window.open(calUrl, "_blank");
+                elements.syncLoadingModal.classList.add("active");
+                setTimeout(() => {
+                    elements.syncLoadingModal.classList.remove("active");
+                    const calUrl = generateGoogleCalendarLink(booking);
+                    window.open(calUrl, "_blank");
+                    showToast("Calendar Updated", "Reservation added to Google Calendar.");
+                }, 1200);
+            });
+        }
+
+        const manageBtn = document.getElementById("success-manage-btn");
+        if (manageBtn) {
+            const newManageBtn = manageBtn.cloneNode(true);
+            manageBtn.parentNode.replaceChild(newManageBtn, manageBtn);
+            newManageBtn.addEventListener("click", () => {
                 elements.bookingSuccessModal.classList.remove("active");
+                const manageSection = document.getElementById("manage-bookings-section");
+                if (manageSection) {
+                    manageSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                const lookupEmail = document.getElementById("lookup-email");
+                if (lookupEmail) {
+                    lookupEmail.value = booking.email;
+                }
+                const lookupButton = document.getElementById("lookup-btn");
+                if (lookupButton) {
+                    // Trigger lookup click after letting page scroll
+                    setTimeout(() => {
+                        switchPortalTab("bookings");
+                        lookupButton.click();
+                    }, 500);
+                }
             });
         }
         
@@ -899,6 +971,68 @@ document.addEventListener("DOMContentLoaded", () => {
     const lookupBtn = document.getElementById("lookup-btn");
     const errLookup = document.getElementById("err-lookup");
 
+    // Switch between bookings and orders tabs in the portal
+    const switchPortalTab = (tab) => {
+        state.activePortalTab = tab;
+        
+        if (!elements.portalTabBookings || !elements.portalTabOrders) return;
+        
+        if (tab === "bookings") {
+            elements.portalTabBookings.classList.add("active");
+            elements.portalTabOrders.classList.remove("active");
+            
+            elements.bookingsList.style.display = "flex";
+            elements.ordersList.style.display = "none";
+            
+            if (!state.displayedBookings || state.displayedBookings.length === 0) {
+                document.getElementById("manage-empty-title").textContent = "No Bookings Recorded";
+                document.getElementById("manage-empty-desc").textContent = "We could not identify any active reservations on this browser. Click below to register one.";
+                document.getElementById("manage-empty-cta").textContent = "Reserve a Table";
+                document.getElementById("manage-empty-cta").href = "#reserve";
+                elements.manageEmpty.style.display = "flex";
+                elements.bookingsList.style.display = "none";
+            } else {
+                elements.manageEmpty.style.display = "none";
+                elements.bookingsList.style.display = "flex";
+            }
+        } else {
+            elements.portalTabBookings.classList.remove("active");
+            elements.portalTabOrders.classList.add("active");
+            
+            elements.bookingsList.style.display = "none";
+            elements.ordersList.style.display = "flex";
+            
+            if (!state.displayedOrders || state.displayedOrders.length === 0) {
+                document.getElementById("manage-empty-title").textContent = "No Orders Recorded";
+                document.getElementById("manage-empty-desc").textContent = "We could not identify any active takeaway or delivery orders on this browser. Click below to order.";
+                document.getElementById("manage-empty-cta").textContent = "Order Aether at Home";
+                document.getElementById("manage-empty-cta").href = "#athome";
+                elements.manageEmpty.style.display = "flex";
+                elements.ordersList.style.display = "none";
+            } else {
+                elements.manageEmpty.style.display = "none";
+                elements.ordersList.style.display = "flex";
+            }
+        }
+    };
+
+    if (elements.portalTabBookings) {
+        elements.portalTabBookings.addEventListener("click", () => switchPortalTab("bookings"));
+    }
+    if (elements.portalTabOrders) {
+        elements.portalTabOrders.addEventListener("click", () => switchPortalTab("orders"));
+    }
+
+    if (elements.syncAllCalBtn) {
+        elements.syncAllCalBtn.addEventListener("click", () => {
+            elements.syncLoadingModal.classList.add("active");
+            setTimeout(() => {
+                elements.syncLoadingModal.classList.remove("active");
+                showToast("Portal Synced", "All upcoming reservations and orders successfully synced with Google Calendar.");
+            }, 1800);
+        });
+    }
+
     if (lookupBtn) {
         lookupBtn.addEventListener("click", async () => {
             const email = lookupEmailInput.value.trim();
@@ -912,47 +1046,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 let fetchedBookings = [];
+                let fetchedOrders = [];
+                
+                fetchedBookings = state.bookings.filter(b => b.email.toLowerCase() === email.toLowerCase());
+                fetchedOrders = state.orders.filter(o => o.email.toLowerCase() === email.toLowerCase());
+
                 if (supabase) {
-                    const { data, error } = await supabase
-                        .from("reservations")
-                        .select("*")
-                        .eq("email", email.toLowerCase())
-                        .neq("status", "cancelled");
-                    if (error) throw error;
-                    fetchedBookings = data.map(b => {
-                        return {
-                            id: b.id,
-                            name: b.name,
-                            phone: b.phone,
-                            email: b.email,
-                            date: new Date(b.date + "T00:00:00"),
-                            time: b.time,
-                            guests: b.guests,
-                            seatType: b.seat_type,
-                            upgrades: b.upgrades || [],
-                            occasion: b.occasion,
-                            dietary: b.dietary,
-                            status: b.status
-                        };
-                    });
-                } else {
-                    fetchedBookings = state.bookings.filter(b => b.email.toLowerCase() === email.toLowerCase());
+                    try {
+                        const { data, error } = await supabase
+                            .from("reservations")
+                            .select("*")
+                            .eq("email", email.toLowerCase())
+                            .neq("status", "cancelled");
+                        if (!error && data) {
+                            fetchedBookings = data.map(b => ({
+                                id: b.id,
+                                name: b.name,
+                                phone: b.phone,
+                                email: b.email,
+                                date: new Date(b.date + "T00:00:00"),
+                                time: b.time,
+                                guests: b.guests,
+                                seatType: b.seat_type,
+                                upgrades: b.upgrades || [],
+                                occasion: b.occasion,
+                                dietary: b.dietary,
+                                status: b.status
+                            }));
+                        }
+                    } catch (e) {
+                        console.error("Supabase error during lookup:", e);
+                    }
                 }
 
                 state.displayedBookings = fetchedBookings;
-                renderBookingsList(fetchedBookings);
+                state.displayedOrders = fetchedOrders;
                 
-                if (fetchedBookings.length === 0) {
-                    showToast("No Reservations Found", `No active reservations found for ${email}`);
+                renderBookingsList(fetchedBookings);
+                renderOrdersList(fetchedOrders);
+                
+                switchPortalTab(state.activePortalTab);
+                
+                const totalFound = fetchedBookings.length + fetchedOrders.length;
+                if (totalFound === 0) {
+                    showToast("No Credentials Found", `No active reservations or orders found for ${email}`);
                 } else {
-                    showToast("Reservations Retrieved", `Found ${fetchedBookings.length} active reservation(s)`);
+                    showToast("Portal Updated", `Retrieved ${fetchedBookings.length} booking(s) and ${fetchedOrders.length} order(s).`);
                 }
             } catch (err) {
                 console.error("Error fetching bookings:", err);
                 const fetchedBookings = state.bookings.filter(b => b.email.toLowerCase() === email.toLowerCase());
+                const fetchedOrders = state.orders.filter(o => o.email.toLowerCase() === email.toLowerCase());
                 state.displayedBookings = fetchedBookings;
+                state.displayedOrders = fetchedOrders;
                 renderBookingsList(fetchedBookings);
-                showToast("Lookup Error", "Retrieved offline reservations.");
+                renderOrdersList(fetchedOrders);
+                switchPortalTab(state.activePortalTab);
+                showToast("Lookup Offline", "Retrieved offline credentials.");
             } finally {
                 lookupBtn.textContent = "Find Bookings";
                 lookupBtn.disabled = false;
@@ -966,13 +1116,16 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.bookingsList.innerHTML = "";
         
         if (!bookingsToRender || bookingsToRender.length === 0) {
-            elements.manageEmpty.style.display = "flex";
-            elements.bookingsList.style.display = "none";
+            if (state.activePortalTab === "bookings") {
+                switchPortalTab("bookings");
+            }
             return;
         }
         
-        elements.manageEmpty.style.display = "none";
-        elements.bookingsList.style.display = "flex";
+        if (state.activePortalTab === "bookings") {
+            elements.manageEmpty.style.display = "none";
+            elements.bookingsList.style.display = "flex";
+        }
         
         const sorted = [...bookingsToRender].sort((a, b) => new Date(a.date) - new Date(b.date));
         
@@ -1031,6 +1184,59 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.addEventListener("click", () => {
                 openRescheduleModal(btn.getAttribute("data-id"));
             });
+        });
+    };
+
+    const renderOrdersList = (ordersToRender) => {
+        if (!elements.ordersList) return;
+        
+        elements.ordersList.innerHTML = "";
+        
+        if (!ordersToRender || ordersToRender.length === 0) {
+            if (state.activePortalTab === "orders") {
+                switchPortalTab("orders");
+            }
+            return;
+        }
+        
+        if (state.activePortalTab === "orders") {
+            elements.manageEmpty.style.display = "none";
+            elements.ordersList.style.display = "flex";
+        }
+        
+        ordersToRender.forEach(order => {
+            const card = document.createElement("div");
+            card.className = "order-item-card";
+            
+            const orderDate = new Date(order.createdAt || new Date());
+            const dateStr = orderDate.toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            
+            let itemDetails = "";
+            if (order.items) {
+                itemDetails = Object.keys(order.items).map(name => `${name} (x${order.items[name]})`).join(", ");
+            }
+            
+            card.innerHTML = `
+                <div class="order-item-info">
+                    <div class="order-item-conf">Order Num: ${order.id}</div>
+                    <div class="order-item-guest-name">Takeaway Order - ${order.name}</div>
+                    <div class="order-item-meta" style="margin-top: 0.5rem;">
+                        <span>Method: <strong>${order.type === 'delivery' ? 'Courier Delivery' : 'Pickup'}</strong></span>
+                        <span>Date: <strong>${dateStr}</strong></span>
+                        <span>Total: <strong class="text-gold">$${order.total}</strong></span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--color-secondary); margin-top: 0.35rem;">
+                        Items: <strong>${itemDetails}</strong>
+                    </div>
+                    ${order.type === 'delivery' ? `<div style="font-size: 0.75rem; color: var(--color-secondary); margin-top: 0.25rem;">Address: <strong>${order.address}</strong></div>` : ''}
+                    ${order.instructions ? `<div style="font-size: 0.75rem; color: var(--color-secondary); margin-top: 0.25rem;">Notes: ${order.instructions}</div>` : ''}
+                </div>
+                <div class="order-item-actions">
+                    <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.25rem 0.75rem; border: 1px solid var(--color-border-gold); color: var(--color-gold);">Pending</span>
+                </div>
+            `;
+            
+            elements.ordersList.appendChild(card);
         });
     };
 
@@ -1269,6 +1475,17 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.cartSummary.appendChild(row);
         });
         
+        const takeawayType = document.querySelector('input[name="takeaway-type"]:checked')?.value || "delivery";
+        const deliveryFee = takeawayType === "delivery" ? 15 : 0;
+        
+        if (elements.cartDeliveryFee) {
+            elements.cartDeliveryFee.textContent = `$${deliveryFee}`;
+        }
+        const deliveryFeeLabel = document.getElementById("cart-delivery-fee");
+        if (deliveryFeeLabel) {
+            deliveryFeeLabel.textContent = deliveryFee > 0 ? `$${deliveryFee}` : "Free";
+        }
+        
         if (subtotal === 0) {
             elements.cartSummary.innerHTML = `<div style="font-size:0.75rem; color:var(--color-secondary); text-align:center;">Cart is empty. Select items.</div>`;
             elements.placeOrderBtn.disabled = true;
@@ -1280,7 +1497,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.placeOrderBtn.disabled = false;
         elements.cartSubtotal.textContent = `$${subtotal}`;
         
-        const total = subtotal + 15;
+        const total = subtotal + deliveryFee;
         elements.cartTotal.textContent = `$${total}`;
     };
 
@@ -1332,10 +1549,99 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         });
-    };
+    };    // Delivery / Pickup Toggle Listener
+    const takeawayTypeRadios = document.querySelectorAll('input[name="takeaway-type"]');
+    takeawayTypeRadios.forEach(radio => {
+        radio.addEventListener("change", (e) => {
+            const val = e.target.value;
+            document.querySelectorAll(".segment-btn").forEach(lbl => {
+                if (lbl.getAttribute("for") === `type-${val}`) {
+                    lbl.classList.add("active");
+                } else {
+                    lbl.classList.remove("active");
+                }
+            });
+            
+            if (val === "pickup") {
+                if (elements.takeawayAddressContainer) {
+                    elements.takeawayAddressContainer.style.display = "none";
+                }
+                const addressInput = document.getElementById("takeaway-address");
+                if (addressInput) addressInput.required = false;
+                
+                const deliveryRow = document.getElementById("cart-delivery-row");
+                if (deliveryRow) deliveryRow.style.display = "none";
+                
+                if (elements.takeawayNote) {
+                    elements.takeawayNote.textContent = "Pickup from our Manhattan location. Ready for pickup next-day after 1:00 PM.";
+                }
+            } else {
+                if (elements.takeawayAddressContainer) {
+                    elements.takeawayAddressContainer.style.display = "block";
+                }
+                const addressInput = document.getElementById("takeaway-address");
+                if (addressInput) addressInput.required = true;
+                
+                const deliveryRow = document.getElementById("cart-delivery-row");
+                if (deliveryRow) deliveryRow.style.display = "flex";
+                
+                if (elements.takeawayNote) {
+                    elements.takeawayNote.textContent = "Delivery restricted to Manhattan below 96th Street. Courier scheduled for next-day dispatch.";
+                }
+            }
+            updateCartUI();
+        });
+    });
 
     if (elements.placeOrderBtn) {
         elements.placeOrderBtn.addEventListener("click", () => {
+            // Validation
+            let isValid = true;
+            
+            const name = elements.takeawayName ? elements.takeawayName.value.trim() : "";
+            const phone = elements.takeawayPhone ? elements.takeawayPhone.value.trim() : "";
+            const email = elements.takeawayEmail ? elements.takeawayEmail.value.trim() : "";
+            const instructions = elements.takeawayInstructions ? elements.takeawayInstructions.value.trim() : "";
+            
+            // Clear errors
+            document.getElementById("err-takeaway-name").textContent = "";
+            document.getElementById("err-takeaway-phone").textContent = "";
+            document.getElementById("err-takeaway-email").textContent = "";
+            document.getElementById("err-takeaway-address").textContent = "";
+            
+            if (!name) {
+                document.getElementById("err-takeaway-name").textContent = "Full Name is required";
+                isValid = false;
+            }
+            if (!phone) {
+                document.getElementById("err-takeaway-phone").textContent = "Phone Number is required";
+                isValid = false;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email) {
+                document.getElementById("err-takeaway-email").textContent = "Email Address is required";
+                isValid = false;
+            } else if (!emailRegex.test(email)) {
+                document.getElementById("err-takeaway-email").textContent = "Invalid email format";
+                isValid = false;
+            }
+            
+            const typeSelected = document.querySelector('input[name="takeaway-type"]:checked')?.value || "delivery";
+            let address = "";
+            if (typeSelected === "delivery") {
+                address = elements.takeawayAddress ? elements.takeawayAddress.value.trim() : "";
+                if (!address) {
+                    document.getElementById("err-takeaway-address").textContent = "Delivery Address is required";
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) {
+                showToast("Order Validation", "Please fill in all required checkout fields.");
+                return;
+            }
+            
             elements.placeOrderBtn.textContent = "Processing...";
             elements.placeOrderBtn.disabled = true;
             
@@ -1353,16 +1659,54 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 }
             });
-            const total = subtotal + 15;
+            const deliveryFee = typeSelected === "delivery" ? 15 : 0;
+            const total = subtotal + deliveryFee;
+            
+            const newOrder = {
+                id: orderNum,
+                name: name,
+                phone: phone,
+                email: email,
+                type: typeSelected,
+                address: address,
+                items: cartItems,
+                subtotal: subtotal,
+                total: total,
+                instructions: instructions,
+                createdAt: new Date().toISOString()
+            };
 
             const finalizeOrder = () => {
+                // Add order to state & localstorage
+                state.orders.push(newOrder);
+                saveOrdersToStorage();
+                
+                // Update success modal
                 document.getElementById("takeaway-order-num").textContent = orderNum;
+                document.getElementById("takeaway-order-type").textContent = typeSelected === "delivery" ? "Courier Delivery" : "Self Pickup";
+                document.getElementById("takeaway-order-time").textContent = typeSelected === "delivery" ? "Tomorrow, between 1:00 PM – 4:00 PM" : "Tomorrow, ready after 1:00 PM";
+                
+                // Compile items summary for modal
+                const itemsSummaryStr = Object.keys(cartItems).map(name => `${cartItems[name]}x ${name}`).join("<br>");
+                document.getElementById("takeaway-order-items").innerHTML = itemsSummaryStr;
+                document.getElementById("takeaway-order-total").textContent = `$${total}`;
+                
                 elements.takeawaySuccessModal.classList.add("active");
                 state.cart = {};
+                
+                // Clear input fields
+                if (elements.takeawayName) elements.takeawayName.value = "";
+                if (elements.takeawayPhone) elements.takeawayPhone.value = "";
+                if (elements.takeawayEmail) elements.takeawayEmail.value = "";
+                if (elements.takeawayAddress) elements.takeawayAddress.value = "";
+                if (elements.takeawayInstructions) elements.takeawayInstructions.value = "";
+                
                 renderShopItems();
                 updateCartUI();
                 
-                elements.placeOrderBtn.textContent = "Place Takeout Order";
+                elements.placeOrderBtn.textContent = "Place Takeaway Order";
+                elements.placeOrderBtn.disabled = false;
+                
                 showToast("Order Placed", `Confirmation receipt ${orderNum} sent.`);
             };
 
@@ -1372,7 +1716,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     items: cartItems,
                     subtotal: subtotal,
                     total: total,
-                    status: 'pending'
+                    status: 'pending',
+                    email: email,
+                    name: name,
+                    phone: phone,
+                    address: address,
+                    instructions: instructions,
+                    fulfillment_type: typeSelected
                 }]).then(({ error }) => {
                     if (error) console.error("Supabase order error:", error);
                     finalizeOrder();
@@ -1382,6 +1732,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             } else {
                 setTimeout(finalizeOrder, 1200);
+            }
+        });
+    }
+
+    // View My Orders click listener from order success modal
+    if (elements.takeawayViewOrdersBtn) {
+        elements.takeawayViewOrdersBtn.addEventListener("click", () => {
+            elements.takeawaySuccessModal.classList.remove("active");
+            
+            // Switch tab to orders
+            switchPortalTab("orders");
+            
+            // Scroll down
+            const manageSection = document.getElementById("manage-bookings-section");
+            if (manageSection) {
+                manageSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Pre-fill lookup and execute search
+            if (state.orders && state.orders.length > 0) {
+                const latestOrder = state.orders[state.orders.length - 1];
+                lookupEmailInput.value = latestOrder.email;
+                setTimeout(() => lookupBtn.click(), 500);
             }
         });
     }
