@@ -254,6 +254,45 @@ document.addEventListener("DOMContentLoaded", () => {
         takeawaySuccessModal: document.getElementById("modal-takeaway-success"),
         takeawayViewOrdersBtn: document.getElementById("takeaway-view-orders-btn"),
         
+        // Premium Manage Reservation Modal Elements
+        manageResModal: document.getElementById("modal-manage-reservation"),
+        openManageModalBtn: document.getElementById("open-manage-modal-btn"),
+        manageVerifyBtn: document.getElementById("manage-verify-btn"),
+        manageVerifyRefState: document.getElementById("manage-verify-ref"),
+        manageVerifyPhoneState: document.getElementById("manage-verify-phone"),
+        manageResVerifyState: document.getElementById("manage-res-verify-state"),
+        manageResLoadingState: document.getElementById("manage-res-loading-state"),
+        manageResDetailsState: document.getElementById("manage-res-details-state"),
+        manageResErrorState: document.getElementById("manage-res-error-state"),
+        manageRefIdInput: document.getElementById("manage-ref-id"),
+        manageRefEmailInput: document.getElementById("manage-ref-email"),
+        managePhoneNumInput: document.getElementById("manage-phone-num"),
+        managePhoneDateInput: document.getElementById("manage-phone-date"),
+        errManageVerify: document.getElementById("err-manage-verify"),
+        
+        // Details elements
+        manageDetName: document.getElementById("manage-det-name"),
+        manageDetDate: document.getElementById("manage-det-date"),
+        manageDetTime: document.getElementById("manage-det-time"),
+        manageDetGuests: document.getElementById("manage-det-guests"),
+        manageDetSeating: document.getElementById("manage-det-seating"),
+        manageDetRequests: document.getElementById("manage-det-requests"),
+        manageResConfId: document.getElementById("manage-res-conf-id"),
+        manageResStatusBadge: document.getElementById("manage-res-status-badge"),
+        
+        // Details action buttons
+        manageRescheduleBtn: document.getElementById("manage-reschedule-btn"),
+        manageEditRequestsBtn: document.getElementById("manage-edit-requests-btn"),
+        manageCancelResBtn: document.getElementById("manage-cancel-res-btn"),
+        
+        // Edit special requests elements
+        manageResEditRequests: document.getElementById("manage-res-edit-requests"),
+        manageEditRequestsInput: document.getElementById("manage-edit-requests-input"),
+        manageCancelEditBtn: document.getElementById("manage-cancel-edit-btn"),
+        manageSaveRequestsBtn: document.getElementById("manage-save-requests-btn"),
+        manageResActions: document.getElementById("manage-res-actions"),
+        manageResTryAgainBtn: document.getElementById("manage-res-try-again"),
+
         // Toast Container
         toastContainer: document.getElementById("toast-container")
     };
@@ -956,10 +995,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Close success modals
     document.querySelectorAll(".modal-close, .modal-dismiss").forEach(btn => {
         btn.addEventListener("click", () => {
-            elements.bookingSuccessModal.classList.remove("active");
-            elements.rescheduleModal.classList.remove("active");
-            elements.cancelModal.classList.remove("active");
-            elements.takeawaySuccessModal.classList.remove("active");
+            if (elements.bookingSuccessModal) elements.bookingSuccessModal.classList.remove("active");
+            if (elements.rescheduleModal) elements.rescheduleModal.classList.remove("active");
+            if (elements.cancelModal) elements.cancelModal.classList.remove("active");
+            if (elements.takeawaySuccessModal) elements.takeawaySuccessModal.classList.remove("active");
+            if (elements.manageResModal) elements.manageResModal.classList.remove("active");
         });
     });
 
@@ -971,92 +1011,111 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // --- RESERVATION MANAGEMENT (CRUD) ---
-    const lookupEmailInput = document.getElementById("lookup-email");
-    const lookupBtn = document.getElementById("lookup-btn");
-    const errLookup = document.getElementById("err-lookup");
+    // --- RESERVATION MANAGEMENT (CRUD & PREMIUM CONCIERGE) ---
+    let activeVerifyMethod = "ref"; // Default verification method
 
-    // Switch between bookings and orders tabs in the portal
-    const switchPortalTab = (tab) => {
-        state.activePortalTab = tab;
-        
-        if (!elements.portalTabBookings || !elements.portalTabOrders) return;
-        
-        if (tab === "bookings") {
-            elements.portalTabBookings.classList.add("active");
-            elements.portalTabOrders.classList.remove("active");
+    // Toggle verification methods
+    const verifyMethodBtns = document.querySelectorAll(".manage-verify-method-btn");
+    verifyMethodBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            verifyMethodBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
             
-            elements.bookingsList.style.display = "flex";
-            elements.ordersList.style.display = "none";
+            const method = btn.getAttribute("data-method");
+            activeVerifyMethod = method;
             
-            if (!state.displayedBookings || state.displayedBookings.length === 0) {
-                document.getElementById("manage-empty-title").textContent = "No Bookings Recorded";
-                document.getElementById("manage-empty-desc").textContent = "We could not identify any active reservations on this browser. Click below to register one.";
-                document.getElementById("manage-empty-cta").textContent = "Reserve a Table";
-                document.getElementById("manage-empty-cta").href = "#reserve";
-                elements.manageEmpty.style.display = "flex";
-                elements.bookingsList.style.display = "none";
+            if (method === "ref") {
+                if (elements.manageVerifyRefState) elements.manageVerifyRefState.style.display = "flex";
+                if (elements.manageVerifyPhoneState) elements.manageVerifyPhoneState.style.display = "none";
             } else {
-                elements.manageEmpty.style.display = "none";
-                elements.bookingsList.style.display = "flex";
+                if (elements.manageVerifyRefState) elements.manageVerifyRefState.style.display = "none";
+                if (elements.manageVerifyPhoneState) elements.manageVerifyPhoneState.style.display = "flex";
             }
-        } else {
-            elements.portalTabBookings.classList.remove("active");
-            elements.portalTabOrders.classList.add("active");
-            
-            elements.bookingsList.style.display = "none";
-            elements.ordersList.style.display = "flex";
-            
-            if (!state.displayedOrders || state.displayedOrders.length === 0) {
-                document.getElementById("manage-empty-title").textContent = "No Orders Recorded";
-                document.getElementById("manage-empty-desc").textContent = "We could not identify any active takeaway or delivery orders on this browser. Click below to order.";
-                document.getElementById("manage-empty-cta").textContent = "Order Aether at Home";
-                document.getElementById("manage-empty-cta").href = "#athome";
-                elements.manageEmpty.style.display = "flex";
-                elements.ordersList.style.display = "none";
-            } else {
-                elements.manageEmpty.style.display = "none";
-                elements.ordersList.style.display = "flex";
-            }
-        }
-    };
+        });
+    });
 
-    if (elements.portalTabBookings) {
-        elements.portalTabBookings.addEventListener("click", () => switchPortalTab("bookings"));
-    }
-    if (elements.portalTabOrders) {
-        elements.portalTabOrders.addEventListener("click", () => switchPortalTab("orders"));
+    // Open manage reservation modal
+    if (elements.openManageModalBtn) {
+        elements.openManageModalBtn.addEventListener("click", () => {
+            // Reset verification modal states
+            if (elements.manageResVerifyState) elements.manageResVerifyState.style.display = "block";
+            if (elements.manageResLoadingState) elements.manageResLoadingState.style.display = "none";
+            if (elements.manageResDetailsState) elements.manageResDetailsState.style.display = "none";
+            if (elements.manageResErrorState) elements.manageResErrorState.style.display = "none";
+            if (elements.manageResEditRequests) elements.manageResEditRequests.style.display = "none";
+            if (elements.manageResActions) elements.manageResActions.style.display = "flex";
+            if (elements.errManageVerify) elements.errManageVerify.textContent = "";
+
+            // Clear inputs
+            if (elements.manageRefIdInput) elements.manageRefIdInput.value = "";
+            if (elements.manageRefEmailInput) elements.manageRefEmailInput.value = "";
+            if (elements.managePhoneNumInput) elements.managePhoneNumInput.value = "";
+            if (elements.managePhoneDateInput) elements.managePhoneDateInput.value = "";
+
+            // Reset toggle
+            verifyMethodBtns.forEach(b => b.classList.remove("active"));
+            const defaultToggle = document.querySelector('.manage-verify-method-btn[data-method="ref"]');
+            if (defaultToggle) defaultToggle.classList.add("active");
+            activeVerifyMethod = "ref";
+            if (elements.manageVerifyRefState) elements.manageVerifyRefState.style.display = "flex";
+            if (elements.manageVerifyPhoneState) elements.manageVerifyPhoneState.style.display = "none";
+
+            // Open modal
+            if (elements.manageResModal) elements.manageResModal.classList.add("active");
+        });
     }
 
+    // Try again button
+    if (elements.manageResTryAgainBtn) {
+        elements.manageResTryAgainBtn.addEventListener("click", () => {
+            if (elements.manageResErrorState) elements.manageResErrorState.style.display = "none";
+            if (elements.manageResVerifyState) elements.manageResVerifyState.style.display = "block";
+            if (elements.errManageVerify) elements.errManageVerify.textContent = "";
+        });
+    }
 
+    // Find My Reservation
+    if (elements.manageVerifyBtn) {
+        elements.manageVerifyBtn.addEventListener("click", async () => {
+            if (elements.errManageVerify) elements.errManageVerify.textContent = "";
 
-    if (lookupBtn) {
-        lookupBtn.addEventListener("click", async () => {
-            const email = lookupEmailInput.value.trim();
-            if (!email) {
-                errLookup.textContent = "Please enter an email address";
-                return;
-            }
-            errLookup.textContent = "";
-            lookupBtn.textContent = "Searching...";
-            lookupBtn.disabled = true;
+            let foundBooking = null;
 
-            try {
-                let fetchedBookings = [];
-                let fetchedOrders = [];
-                
-                fetchedBookings = state.bookings.filter(b => b.email.toLowerCase() === email.toLowerCase());
-                fetchedOrders = state.orders.filter(o => o.email.toLowerCase() === email.toLowerCase());
+            if (activeVerifyMethod === "ref") {
+                const refId = elements.manageRefIdInput ? elements.manageRefIdInput.value.trim() : "";
+                const email = elements.manageRefEmailInput ? elements.manageRefEmailInput.value.trim() : "";
 
-                if (supabase) {
+                if (!refId || !email) {
+                    if (elements.errManageVerify) elements.errManageVerify.textContent = "Please fill in all booking reference fields.";
+                    return;
+                }
+
+                // Show loading
+                if (elements.manageResVerifyState) elements.manageResVerifyState.style.display = "none";
+                if (elements.manageResLoadingState) elements.manageResLoadingState.style.display = "block";
+
+                // Simulate Concierge Lookup
+                await new Promise(resolve => setTimeout(resolve, 1200));
+
+                // Search local state
+                foundBooking = state.bookings.find(b => 
+                    b.id.toUpperCase() === refId.toUpperCase() && 
+                    b.email.toLowerCase() === email.toLowerCase()
+                );
+
+                // Supabase fallback
+                if (!foundBooking && supabase) {
                     try {
                         const { data, error } = await supabase
                             .from("reservations")
                             .select("*")
+                            .eq("id", refId.toUpperCase())
                             .eq("email", email.toLowerCase())
                             .neq("status", "cancelled");
-                        if (!error && data) {
-                            fetchedBookings = data.map(b => ({
+                        
+                        if (!error && data && data.length > 0) {
+                            const b = data[0];
+                            foundBooking = {
                                 id: b.id,
                                 name: b.name,
                                 phone: b.phone,
@@ -1069,171 +1128,238 @@ document.addEventListener("DOMContentLoaded", () => {
                                 occasion: b.occasion,
                                 dietary: b.dietary,
                                 status: b.status
-                            }));
+                            };
+                            // sync to state
+                            if (!state.bookings.some(x => x.id === foundBooking.id)) {
+                                state.bookings.push(foundBooking);
+                                saveBookingsToStorage();
+                            }
                         }
                     } catch (e) {
-                        console.error("Supabase error during lookup:", e);
+                        console.error("Supabase search error:", e);
                     }
                 }
+            } else {
+                const phone = elements.managePhoneNumInput ? elements.managePhoneNumInput.value.trim() : "";
+                const dateVal = elements.managePhoneDateInput ? elements.managePhoneDateInput.value.trim() : "";
 
-                state.displayedBookings = fetchedBookings;
-                state.displayedOrders = fetchedOrders;
-                
-                renderBookingsList(fetchedBookings);
-                renderOrdersList(fetchedOrders);
-                
-                switchPortalTab(state.activePortalTab);
-                
-                const totalFound = fetchedBookings.length + fetchedOrders.length;
-                if (totalFound === 0) {
-                    showToast("No Credentials Found", `No active reservations or orders found for ${email}`);
-                } else {
-                    showToast("Portal Updated", `Retrieved ${fetchedBookings.length} booking(s) and ${fetchedOrders.length} order(s).`);
+                if (!phone || !dateVal) {
+                    if (elements.errManageVerify) elements.errManageVerify.textContent = "Please enter both phone number and date.";
+                    return;
                 }
-            } catch (err) {
-                console.error("Error fetching bookings:", err);
-                const fetchedBookings = state.bookings.filter(b => b.email.toLowerCase() === email.toLowerCase());
-                const fetchedOrders = state.orders.filter(o => o.email.toLowerCase() === email.toLowerCase());
-                state.displayedBookings = fetchedBookings;
-                state.displayedOrders = fetchedOrders;
-                renderBookingsList(fetchedBookings);
-                renderOrdersList(fetchedOrders);
-                switchPortalTab(state.activePortalTab);
-                showToast("Lookup Offline", "Retrieved offline credentials.");
-            } finally {
-                lookupBtn.textContent = "Find Bookings";
-                lookupBtn.disabled = false;
+
+                // Show loading
+                if (elements.manageResVerifyState) elements.manageResVerifyState.style.display = "none";
+                if (elements.manageResLoadingState) elements.manageResLoadingState.style.display = "block";
+
+                // Simulate Concierge Lookup
+                await new Promise(resolve => setTimeout(resolve, 1200));
+
+                const cleanPhone = phone.replace(/\D/g, '');
+
+                // Search local state
+                foundBooking = state.bookings.find(b => {
+                    const bookingDateStr = formatDate(b.date); // YYYY-MM-DD
+                    const cleanBookingPhone = b.phone.replace(/\D/g, '');
+                    return cleanBookingPhone === cleanPhone && bookingDateStr === dateVal;
+                });
+
+                // Supabase fallback
+                if (!foundBooking && supabase) {
+                    try {
+                        const { data, error } = await supabase
+                            .from("reservations")
+                            .select("*")
+                            .eq("phone", phone)
+                            .eq("date", dateVal)
+                            .neq("status", "cancelled");
+                        
+                        if (!error && data && data.length > 0) {
+                            const b = data[0];
+                            foundBooking = {
+                                id: b.id,
+                                name: b.name,
+                                phone: b.phone,
+                                email: b.email,
+                                date: new Date(b.date + "T00:00:00"),
+                                time: b.time,
+                                guests: b.guests,
+                                seatType: b.seat_type,
+                                upgrades: b.upgrades || [],
+                                occasion: b.occasion,
+                                dietary: b.dietary,
+                                status: b.status
+                            };
+                            // sync to state
+                            if (!state.bookings.some(x => x.id === foundBooking.id)) {
+                                state.bookings.push(foundBooking);
+                                saveBookingsToStorage();
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Supabase search error:", e);
+                    }
+                }
+            }
+
+            if (elements.manageResLoadingState) elements.manageResLoadingState.style.display = "none";
+
+            if (foundBooking) {
+                state.activeManagedReservation = foundBooking;
+
+                // Populate UI details
+                if (elements.manageDetName) elements.manageDetName.textContent = foundBooking.name;
+                
+                const formattedDate = foundBooking.date.toLocaleDateString("en-US", {
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                });
+                if (elements.manageDetDate) elements.manageDetDate.textContent = formattedDate;
+                if (elements.manageDetTime) elements.manageDetTime.textContent = foundBooking.time;
+                if (elements.manageDetGuests) elements.manageDetGuests.textContent = foundBooking.guests;
+                
+                const locDetails = window.AetherData.seatingLocations[foundBooking.seatType];
+                if (elements.manageDetSeating) {
+                    elements.manageDetSeating.textContent = locDetails ? locDetails.name : foundBooking.seatType;
+                }
+                if (elements.manageDetRequests) {
+                    elements.manageDetRequests.textContent = foundBooking.dietary || "None";
+                }
+                if (elements.manageResConfId) elements.manageResConfId.textContent = foundBooking.id;
+                
+                if (elements.manageResStatusBadge) {
+                    elements.manageResStatusBadge.textContent = foundBooking.status || "Confirmed";
+                    elements.manageResStatusBadge.style.borderColor = foundBooking.status === "cancelled" ? "var(--color-danger)" : "var(--color-success)";
+                    elements.manageResStatusBadge.style.color = foundBooking.status === "cancelled" ? "var(--color-danger)" : "var(--color-success)";
+                }
+
+                // Show Details
+                if (elements.manageResDetailsState) elements.manageResDetailsState.style.display = "block";
+            } else {
+                // Show Error State
+                if (elements.manageResErrorState) elements.manageResErrorState.style.display = "block";
             }
         });
     }
 
+    // Details actions: Edit requests toggle
+    if (elements.manageEditRequestsBtn) {
+        elements.manageEditRequestsBtn.addEventListener("click", () => {
+            if (!state.activeManagedReservation) return;
+            
+            if (elements.manageResActions) elements.manageResActions.style.display = "none";
+            if (elements.manageEditRequestsInput) {
+                elements.manageEditRequestsInput.value = state.activeManagedReservation.dietary || "";
+            }
+            if (elements.manageResEditRequests) elements.manageResEditRequests.style.display = "block";
+        });
+    }
+
+    // Cancel edit requests
+    if (elements.manageCancelEditBtn) {
+        elements.manageCancelEditBtn.addEventListener("click", () => {
+            if (elements.manageResEditRequests) elements.manageResEditRequests.style.display = "none";
+            if (elements.manageResActions) elements.manageResActions.style.display = "flex";
+        });
+    }
+
+    // Save edit requests
+    if (elements.manageSaveRequestsBtn) {
+        elements.manageSaveRequestsBtn.addEventListener("click", async () => {
+            const booking = state.activeManagedReservation;
+            if (!booking) return;
+
+            const updatedRequests = elements.manageEditRequestsInput ? elements.manageEditRequestsInput.value.trim() : "";
+            
+            elements.manageSaveRequestsBtn.textContent = "Saving...";
+            elements.manageSaveRequestsBtn.disabled = true;
+
+            const finalizeSave = () => {
+                booking.dietary = updatedRequests;
+                
+                // Sync to local arrays
+                const localBooking = state.bookings.find(b => b.id === booking.id);
+                if (localBooking) {
+                    localBooking.dietary = updatedRequests;
+                    saveBookingsToStorage();
+                }
+
+                if (elements.manageDetRequests) {
+                    elements.manageDetRequests.textContent = updatedRequests || "None";
+                }
+
+                if (elements.manageResEditRequests) elements.manageResEditRequests.style.display = "none";
+                if (elements.manageResActions) elements.manageResActions.style.display = "flex";
+                
+                elements.manageSaveRequestsBtn.textContent = "Save Changes";
+                elements.manageSaveRequestsBtn.disabled = false;
+                
+                showToast("Requests Updated", "Your special requests have been successfully updated.");
+            };
+
+            if (supabase) {
+                try {
+                    const { error } = await supabase
+                        .from('reservations')
+                        .update({ dietary: updatedRequests })
+                        .eq('id', booking.id);
+                    
+                    if (error) {
+                        console.error("Supabase update dietary error:", error);
+                        showToast("Database Error", "Failed to save changes online. Saved locally.");
+                    }
+                    finalizeSave();
+                } catch (err) {
+                    console.error("Supabase update dietary catch:", err);
+                    finalizeSave();
+                }
+            } else {
+                setTimeout(finalizeSave, 800);
+            }
+        });
+    }
+
+    // Details actions: Reschedule
+    if (elements.manageRescheduleBtn) {
+        elements.manageRescheduleBtn.addEventListener("click", () => {
+            const booking = state.activeManagedReservation;
+            if (!booking) return;
+
+            // Close verification modal
+            if (elements.manageResModal) elements.manageResModal.classList.remove("active");
+
+            // Open reschedule flow
+            openRescheduleModal(booking.id);
+        });
+    }
+
+    // Details actions: Cancel Reservation
+    if (elements.manageCancelResBtn) {
+        elements.manageCancelResBtn.addEventListener("click", () => {
+            const booking = state.activeManagedReservation;
+            if (!booking) return;
+
+            // Close verification modal
+            if (elements.manageResModal) elements.manageResModal.classList.remove("active");
+
+            // Set global ID for cancellation confirm
+            bookingIdToCancel = booking.id;
+
+            // Open confirm modal
+            if (elements.cancelModal) elements.cancelModal.classList.add("active");
+        });
+    }
+
+    // Keep render lists safe but dummy
     const renderBookingsList = (bookingsToRender) => {
         if (!elements.bookingsList) return;
-        
         elements.bookingsList.innerHTML = "";
-        
-        if (!bookingsToRender || bookingsToRender.length === 0) {
-            if (state.activePortalTab === "bookings") {
-                switchPortalTab("bookings");
-            }
-            return;
-        }
-        
-        if (state.activePortalTab === "bookings") {
-            elements.manageEmpty.style.display = "none";
-            elements.bookingsList.style.display = "flex";
-        }
-        
-        const sorted = [...bookingsToRender].sort((a, b) => new Date(a.date) - new Date(b.date));
-        
-        sorted.forEach(booking => {
-            const card = document.createElement("div");
-            card.className = "booking-item-card";
-            
-            const bookingDate = new Date(booking.date);
-            const dateStr = bookingDate.toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-            
-            const area = window.AetherData.seatingLocations[booking.seatType];
-            const areaLabel = area ? area.name : "Main dining";
-            
-            let enhancements = "";
-            if (booking.upgrades && booking.upgrades.length > 0) {
-                enhancements = booking.upgrades.map(uid => {
-                    if (uid === "upgrade-cellar") return "Cellar tour";
-                    if (uid === "upgrade-flowers") return "Floral arrangement";
-                    if (uid === "upgrade-cookbook") return "Signed cookbook";
-                    return "";
-                }).filter(x => x !== "").join(", ");
-            }
-            
-            card.innerHTML = `
-                <div class="booking-item-info">
-                    <div class="booking-item-conf">Conf: ${booking.id}</div>
-                    <div class="booking-item-guest-name">${booking.name}</div>
-                    <div class="booking-item-meta">
-                        <span>Guests: <strong>${booking.guests}</strong></span>
-                        <span>Date: <strong>${dateStr}</strong></span>
-                        <span>Time: <strong>${booking.time}</strong></span>
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--color-secondary); margin-top:0.35rem;">
-                        Area: <strong>${areaLabel}</strong> ${enhancements ? `| Upgrades: <strong>${enhancements}</strong>` : ""}
-                    </div>
-                    ${booking.dietary ? `<div style="font-size:0.75rem; color:var(--color-secondary); margin-top:0.25rem;">Note: ${booking.dietary}</div>` : ''}
-                </div>
-                <div class="booking-item-actions">
-                    <button class="btn btn-secondary btn-small reschedule-btn" data-id="${booking.id}">Reschedule</button>
-                    <button class="btn btn-secondary btn-small cancel-btn" style="border-color:rgba(217,140,140,0.2); color:var(--color-danger);" data-id="${booking.id}">Cancel</button>
-                </div>
-            `;
-            
-            elements.bookingsList.appendChild(card);
-        });
-        
-        elements.bookingsList.querySelectorAll(".cancel-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                bookingIdToCancel = btn.getAttribute("data-id");
-                elements.cancelModal.classList.add("active");
-            });
-        });
-        
-        elements.bookingsList.querySelectorAll(".reschedule-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                openRescheduleModal(btn.getAttribute("data-id"));
-            });
-        });
     };
-
     const renderOrdersList = (ordersToRender) => {
         if (!elements.ordersList) return;
-        
         elements.ordersList.innerHTML = "";
-        
-        if (!ordersToRender || ordersToRender.length === 0) {
-            if (state.activePortalTab === "orders") {
-                switchPortalTab("orders");
-            }
-            return;
-        }
-        
-        if (state.activePortalTab === "orders") {
-            elements.manageEmpty.style.display = "none";
-            elements.ordersList.style.display = "flex";
-        }
-        
-        ordersToRender.forEach(order => {
-            const card = document.createElement("div");
-            card.className = "order-item-card";
-            
-            const orderDate = new Date(order.createdAt || new Date());
-            const dateStr = orderDate.toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-            
-            let itemDetails = "";
-            if (order.items) {
-                itemDetails = Object.keys(order.items).map(name => `${name} (x${order.items[name]})`).join(", ");
-            }
-            
-            card.innerHTML = `
-                <div class="order-item-info">
-                    <div class="order-item-conf">Order Num: ${order.id}</div>
-                    <div class="order-item-guest-name">Takeaway Order - ${order.name}</div>
-                    <div class="order-item-meta" style="margin-top: 0.5rem;">
-                        <span>Method: <strong>${order.type === 'delivery' ? 'Courier Delivery' : 'Pickup'}</strong></span>
-                        <span>Date: <strong>${dateStr}</strong></span>
-                        <span>Total: <strong class="text-gold">$${order.total}</strong></span>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--color-secondary); margin-top: 0.35rem;">
-                        Items: <strong>${itemDetails}</strong>
-                    </div>
-                    ${order.type === 'delivery' ? `<div style="font-size: 0.75rem; color: var(--color-secondary); margin-top: 0.25rem;">Address: <strong>${order.address}</strong></div>` : ''}
-                    ${order.instructions ? `<div style="font-size: 0.75rem; color: var(--color-secondary); margin-top: 0.25rem;">Notes: ${order.instructions}</div>` : ''}
-                </div>
-                <div class="order-item-actions">
-                    <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.25rem 0.75rem; border: 1px solid var(--color-border-gold); color: var(--color-gold);">Pending</span>
-                </div>
-            `;
-            
-            elements.ordersList.appendChild(card);
-        });
     };
 
     // Cancellation flow confirm
@@ -1250,9 +1376,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (state.displayedBookings) {
                     state.displayedBookings = state.displayedBookings.filter(b => b.id !== id);
                 }
+
+                if (state.activeManagedReservation && state.activeManagedReservation.id === id) {
+                    state.activeManagedReservation = null;
+                }
                 
                 elements.cancelModal.classList.remove("active");
-                showToast("Reservation Released", `Booking ${id} was cancelled.`);
+                showToast("Reservation Cancelled", "Your table has been released. A cancellation confirmation has been sent to your email and calendar.");
                 bookingIdToCancel = null;
                 
                 renderBookingsList(state.displayedBookings);
@@ -1376,9 +1506,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     state.displayedBookings[dispIdx].time = state.rescheduleSelectedTime;
                     state.displayedBookings[dispIdx].guests = guests;
                 }
+
+                if (state.activeManagedReservation && state.activeManagedReservation.id === id) {
+                    state.activeManagedReservation.date = state.rescheduleSelectedDate;
+                    state.activeManagedReservation.time = state.rescheduleSelectedTime;
+                    state.activeManagedReservation.guests = guests;
+                }
                 
                 elements.rescheduleModal.classList.remove("active");
-                showToast("Rescheduled Successfully", `Booking updated to ${state.rescheduleSelectedDate.toLocaleDateString()} at ${state.rescheduleSelectedTime}.`);
+                showToast("Reservation Updated", "An updated confirmation email and calendar event invite have been dispatched.");
                 
                 state.reschedulingBookingId = null;
                 state.rescheduleSelectedDate = null;

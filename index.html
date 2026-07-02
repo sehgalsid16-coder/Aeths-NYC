@@ -562,9 +562,8 @@
                             <!-- JS populated dynamic breakdown -->
                         </div>
                         
-                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                            <button type="submit" class="btn btn-primary" id="submit-booking-btn" style="flex: 1;">Confirm Reservation</button>
-                            <button type="button" class="btn btn-secondary" id="cancel-booking-form-btn" style="flex: 1;">Cancel</button>
+                        <div style="margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary" id="submit-booking-btn" style="width: 100%; padding: 1rem 2rem;">Confirm Reservation</button>
                         </div>
                     </form>
                 </div>
@@ -572,52 +571,61 @@
         </div>
     </section>
 
-    <!-- --- MANAGE RESERVATIONS SECTION --- -->
-    <section class="section section-surface manage-section" id="manage-bookings-section">
-        <div class="container manage-container">
-            <div class="section-header" style="margin-bottom: 3.5rem;">
-                <span class="section-pre">Your Table</span>
-                <h2 class="section-title">Manage Reservations & Orders</h2>
+    <!-- --- MANAGE RESERVATION (PREMIUM CONCIERGE) --- -->
+    <section class="section manage-reservation-section" id="manage-bookings-section">
+        <div class="container">
+            <div class="section-header" style="margin-bottom: 4rem;">
+                <span class="section-pre">Concierge Service</span>
+                <h2 class="section-title">Need to Make a Change?</h2>
                 <div class="gold-line-center"></div>
-                <p class="section-subtitle">Review, reschedule, or cancel your upcoming seatings and private dining packages.</p>
+                <p class="section-subtitle">Plans changed? No problem. View, reschedule, or cancel your reservation in seconds.</p>
             </div>
 
-
-            
-            <!-- Portal Tabs -->
-            <div class="portal-tabs" style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
-                <button type="button" class="portal-tab-btn active" id="portal-tab-bookings">My Bookings</button>
-                <button type="button" class="portal-tab-btn" id="portal-tab-orders">My Orders</button>
-            </div>
-            
-            <div class="bookings-list" id="bookings-list">
-                <!-- JS populated Bookings -->
-            </div>
-
-            <div class="orders-list" id="orders-list" style="display: none; flex-direction: column; gap: 1.5rem;">
-                <!-- JS populated Orders -->
-            </div>
-            
-            <div class="manage-empty" id="manage-empty" style="display: none;">
-                <div class="manage-empty-icon">⌘</div>
-                <h3 class="font-serif" style="font-size: 1.25rem;" id="manage-empty-title">No Bookings Recorded</h3>
-                <p style="max-width: 350px; margin: 0 auto; color: var(--color-secondary);" id="manage-empty-desc">We could not identify any active reservations on this browser. Click below to register one.</p>
-                <a href="#reserve" class="btn btn-secondary btn-small" id="manage-empty-cta" style="margin-top: 1rem;">Reserve a Table</a>
-            </div>
-            
-            <div class="lookup-container" style="max-width: 480px; margin: 3.5rem auto 0 auto; border-top: 1px solid var(--color-border); padding-top: 2.5rem; text-align: center;">
-                <h3 class="font-serif" style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--color-gold);">Look Up Your Reservations & Orders</h3>
-                <p style="font-size: 0.75rem; color: var(--color-secondary); margin-bottom: 1.5rem;">Enter your email address to retrieve and manage your active bookings and takeaway orders.</p>
-                <div style="display: flex; gap: 0.75rem; justify-content: center;">
-                    <input type="email" id="lookup-email" class="form-input" placeholder="eleanor.s@vogue.com" style="max-width: 280px; margin-bottom: 0;">
-                    <button type="button" class="btn btn-primary" id="lookup-btn" style="padding: 0.6rem 1.8rem; font-size: 0.65rem;">Find Credentials</button>
+            <div class="manage-res-cards">
+                <!-- Card 1: View -->
+                <div class="manage-res-card">
+                    <div class="manage-res-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <h3 class="manage-res-card-title">View Reservation</h3>
+                    <p class="manage-res-card-desc">Review your booking details, seating preferences, and any special requests on file.</p>
                 </div>
-                <span class="form-error" id="err-lookup" style="display: block; margin-top: 0.5rem;"></span>
-                
-                <p style="font-size: 0.65rem; color: var(--color-secondary); opacity: 0.7; margin-top: 2.5rem; line-height: 1.5;">
-                    This is a fully functional demo. Real bookings and orders sync to your calendar and email in production.
-                </p>
+                <!-- Card 2: Reschedule -->
+                <div class="manage-res-card">
+                    <div class="manage-res-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <path d="M14 14l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="manage-res-card-title">Reschedule</h3>
+                    <p class="manage-res-card-desc">Select a new date and time that suits you. We'll update your booking instantly.</p>
+                </div>
+                <!-- Card 3: Cancel -->
+                <div class="manage-res-card">
+                    <div class="manage-res-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                    </div>
+                    <h3 class="manage-res-card-title">Cancel Reservation</h3>
+                    <p class="manage-res-card-desc">Release your table gracefully. A cancellation confirmation will be sent to you.</p>
+                </div>
             </div>
+
+            <div class="manage-res-cta-wrapper">
+                <button type="button" class="btn btn-primary manage-res-cta-btn" id="open-manage-modal-btn">Manage Reservation</button>
+            </div>
+
+            <p class="manage-res-note">Our virtual concierge is available around the clock. For direct assistance, call <a href="tel:2125550190" class="text-gold">(212) 555-0190</a>.</p>
         </div>
     </section>
 
@@ -1019,7 +1027,148 @@
     </div>
 
 
+    <!-- Modal 5: Manage Reservation Verification -->
+    <div class="modal-overlay" id="modal-manage-reservation" role="dialog" aria-modal="true" aria-labelledby="manage-res-h">
+        <div class="modal-content manage-res-modal-content">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
 
+            <!-- State 1: Verification Form -->
+            <div id="manage-res-verify-state">
+                <div class="manage-res-modal-header">
+                    <div class="manage-res-modal-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-serif" id="manage-res-h" style="font-size: 1.6rem; text-align: center; margin-bottom: 0.5rem;">Verify Your Reservation</h3>
+                    <p style="text-align: center; font-size: 0.85rem; color: var(--color-secondary); max-width: 380px; margin: 0 auto;">Enter your booking details below to view or modify your reservation.</p>
+                </div>
+
+                <!-- Toggle between verification methods -->
+                <div class="manage-verify-toggle">
+                    <button type="button" class="manage-verify-method-btn active" data-method="ref">Booking Reference</button>
+                    <button type="button" class="manage-verify-method-btn" data-method="phone">Phone Number</button>
+                </div>
+
+                <!-- Method A: Booking Ref + Email -->
+                <div class="manage-verify-method" id="manage-verify-ref" style="display: flex;">
+                    <div class="form-group">
+                        <label for="manage-ref-id" class="form-label">Booking Reference</label>
+                        <input type="text" id="manage-ref-id" class="form-input" placeholder="AE-2026-F982" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="manage-ref-email" class="form-label">Email Address</label>
+                        <input type="email" id="manage-ref-email" class="form-input" placeholder="eleanor.s@vogue.com" autocomplete="email">
+                    </div>
+                </div>
+
+                <!-- Method B: Phone + Date -->
+                <div class="manage-verify-method" id="manage-verify-phone" style="display: none;">
+                    <div class="form-group">
+                        <label for="manage-phone-num" class="form-label">Phone Number</label>
+                        <input type="tel" id="manage-phone-num" class="form-input" placeholder="(212) 555-0198" autocomplete="tel">
+                    </div>
+                    <div class="form-group">
+                        <label for="manage-phone-date" class="form-label">Reservation Date</label>
+                        <input type="date" id="manage-phone-date" class="form-input">
+                    </div>
+                </div>
+
+                <span class="form-error" id="err-manage-verify" style="display: block; text-align: center; margin-bottom: 0.5rem;"></span>
+
+                <button type="button" class="btn btn-primary" id="manage-verify-btn" style="width: 100%; padding: 0.9rem 2rem; margin-top: 0.5rem;">Find My Reservation</button>
+            </div>
+
+            <!-- State 2: Loading -->
+            <div id="manage-res-loading-state" style="display: none;">
+                <div class="manage-res-loader">
+                    <div class="manage-res-spinner"></div>
+                    <p style="font-size: 0.85rem; color: var(--color-secondary); margin-top: 1.5rem;">Locating your reservation…</p>
+                </div>
+            </div>
+
+            <!-- State 3: Reservation Details -->
+            <div id="manage-res-details-state" style="display: none;">
+                <div class="manage-res-modal-header" style="margin-bottom: 1.5rem;">
+                    <div class="manage-res-status-badge" id="manage-res-status-badge">Confirmed</div>
+                    <h3 class="font-serif" style="font-size: 1.5rem; text-align: center; margin-bottom: 0.25rem;">Your Reservation</h3>
+                    <p style="text-align: center; font-size: 0.75rem; color: var(--color-secondary); letter-spacing: 0.1em;" id="manage-res-conf-id">AE-2026-F982</p>
+                </div>
+
+                <div class="manage-res-details-card">
+                    <div class="manage-res-detail-row">
+                        <span class="manage-res-detail-label">Guest Name</span>
+                        <span class="manage-res-detail-val" id="manage-det-name">Eleanor Sterling</span>
+                    </div>
+                    <div class="manage-res-detail-row">
+                        <span class="manage-res-detail-label">Date</span>
+                        <span class="manage-res-detail-val" id="manage-det-date">Wednesday, July 8, 2026</span>
+                    </div>
+                    <div class="manage-res-detail-row">
+                        <span class="manage-res-detail-label">Time</span>
+                        <span class="manage-res-detail-val" id="manage-det-time">7:00 PM</span>
+                    </div>
+                    <div class="manage-res-detail-row">
+                        <span class="manage-res-detail-label">Number of Guests</span>
+                        <span class="manage-res-detail-val" id="manage-det-guests">2</span>
+                    </div>
+                    <div class="manage-res-detail-row">
+                        <span class="manage-res-detail-label">Seating Preference</span>
+                        <span class="manage-res-detail-val" id="manage-det-seating">Banquette</span>
+                    </div>
+                    <div class="manage-res-detail-row">
+                        <span class="manage-res-detail-label">Special Requests</span>
+                        <span class="manage-res-detail-val" id="manage-det-requests">No shellfish, please.</span>
+                    </div>
+                </div>
+
+                <!-- Editable Special Requests -->
+                <div class="manage-res-edit-requests" id="manage-res-edit-requests" style="display: none;">
+                    <div class="form-group">
+                        <label for="manage-edit-requests-input" class="form-label">Update Special Requests</label>
+                        <textarea id="manage-edit-requests-input" class="form-input form-textarea" placeholder="Allergies, seating preferences, etc."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button type="button" class="btn btn-secondary btn-small" id="manage-cancel-edit-btn" style="flex: 1;">Cancel</button>
+                        <button type="button" class="btn btn-primary btn-small" id="manage-save-requests-btn" style="flex: 1;">Save Changes</button>
+                    </div>
+                </div>
+
+                <div class="manage-res-actions" id="manage-res-actions">
+                    <button type="button" class="btn btn-secondary manage-res-action-btn" id="manage-reschedule-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Reschedule
+                    </button>
+                    <button type="button" class="btn btn-secondary manage-res-action-btn" id="manage-edit-requests-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Edit Requests
+                    </button>
+                    <button type="button" class="btn btn-secondary manage-res-action-btn manage-res-cancel-action" id="manage-cancel-res-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        Cancel
+                    </button>
+                </div>
+
+                <button type="button" class="btn btn-primary modal-dismiss" style="width: 100%; margin-top: 1rem; font-size: 0.7rem;">Done</button>
+            </div>
+
+            <!-- State 4: Not Found Error -->
+            <div id="manage-res-error-state" style="display: none;">
+                <div class="manage-res-error-content">
+                    <div class="manage-res-error-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-serif" style="font-size: 1.35rem; margin-bottom: 0.5rem;">Reservation Not Found</h3>
+                    <p style="font-size: 0.85rem; color: var(--color-secondary); max-width: 340px; margin: 0 auto 1.5rem auto; text-align: center;">We couldn't locate a reservation matching the details provided. Please verify and try again.</p>
+                    <button type="button" class="btn btn-secondary" id="manage-res-try-again" style="padding: 0.7rem 2rem;">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- --- SCRIPTS --- -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
