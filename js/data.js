@@ -46,7 +46,7 @@ const tastingMenu = [
         id: "course-6",
         name: "Meyer Lemon & Shiso Sorbet",
         description: "A delicate palate cleanser infused with premium sake and wild mint.",
-        image: "https://images.unsplash.com/photo-1517093157656-b9ecdf16371c?auto=format&fit=crop&w=300&q=80",
+        image: "images/meyer-lemon-shiso-sorbet.png",
         price: "Included"
     },
     {
@@ -187,7 +187,7 @@ const seasonalTimelineData = [
         month: "February",
         crop: "Atlantic Sea Urchin & Winter Citrus",
         desc: "Maine sea urchin reaches peak sweet brininess in freezing waters. Paired with blood orange granite and preserved finger limes.",
-        image: "https://images.unsplash.com/photo-1517093157656-b9ecdf16371c?auto=format&fit=crop&w=400&q=80"
+        image: "images/atlantic-sea-urchin-citrus.png"
     },
     {
         month: "March",
