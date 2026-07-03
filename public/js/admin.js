@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- INITIAL DATE SETUP ---
     if (elements.overviewDatePicker) {
-        elements.overviewDatePicker.value = state.selectedDate;
+        elements.overviewDatePicker.value = formatDateString(state.selectedDate);
     }
 
     // --- TABS (SIDEBAR) CONTROLLER ---
@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- PANEL 1: OVERVIEW CONTROLS & SEATING FLOOR PLAN ---
     if (elements.overviewDatePicker) {
         elements.overviewDatePicker.addEventListener("change", (e) => {
-            state.selectedDate = e.target.value;
+            state.selectedDate = toIsoDate(e.target.value);
             renderOverviewCharts();
         });
     }
@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- PANEL 2: RESERVATIONS LEDGER ---
     const getFilteredBookings = () => {
         const query = elements.bookingsSearch.value.trim().toLowerCase();
-        const dateFilter = elements.bookingsFilterDate.value;
+        const dateFilter = toIsoDate(elements.bookingsFilterDate.value);
         const zoneFilter = elements.bookingsFilterZone.value;
         const statusFilter = elements.bookingsFilterStatus.value;
 
@@ -876,13 +876,10 @@ document.addEventListener("DOMContentLoaded", () => {
         state.currentEditBookingId = bookingId;
         document.getElementById("resch-code").value = booking.id;
         document.getElementById("resch-name").value = booking.name;
-        document.getElementById("resch-date").value = booking.date;
+        document.getElementById("resch-date").value = formatDateString(booking.date);
         document.getElementById("resch-time").value = booking.time;
         document.getElementById("resch-covers").value = booking.guests;
         document.getElementById("resch-reason").value = "";
-
-        // Minimum date restriction
-        document.getElementById("resch-date").min = new Date().toISOString().split('T')[0];
 
         openModal(elements.modalRescheduleBooking);
     };
@@ -891,7 +888,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.rescheduleBookingForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const id = state.currentEditBookingId;
-            const date = document.getElementById("resch-date").value;
+            const date = toIsoDate(document.getElementById("resch-date").value);
             const time = document.getElementById("resch-time").value;
             const guests = parseInt(document.getElementById("resch-covers").value);
             const reason = document.getElementById("resch-reason").value.trim();
@@ -1091,8 +1088,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4. Create Booking Form
     if (elements.createBookingForm) {
         // Set minimum date to today
-        document.getElementById("new-guest-date").value = state.selectedDate;
-        document.getElementById("new-guest-date").min = new Date().toISOString().split('T')[0];
+        document.getElementById("new-guest-date").value = formatDateString(state.selectedDate);
 
         elements.createBookingForm.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -1100,7 +1096,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const name = document.getElementById("new-guest-name").value.trim();
             const phone = document.getElementById("new-guest-phone").value.trim();
             const email = document.getElementById("new-guest-email").value.trim();
-            const date = document.getElementById("new-guest-date").value;
+            const date = toIsoDate(document.getElementById("new-guest-date").value);
             const time = document.getElementById("new-guest-time").value;
             const guests = parseInt(document.getElementById("new-guest-covers").value);
             const seatType = document.getElementById("new-guest-zone").value;
@@ -1274,6 +1270,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const day = String(dateObj.getDate()).padStart(2, '0');
         const year = dateObj.getFullYear();
         return `${month}/${day}/${year}`;
+    };
+
+    const toIsoDate = (displayDate) => {
+        if (!displayDate) return '';
+        const parts = displayDate.split('/');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+        }
+        const hyphenParts = displayDate.split('-');
+        if (hyphenParts.length === 3) {
+            if (hyphenParts[0].length === 4) {
+                return displayDate;
+            }
+            return `${hyphenParts[2]}-${hyphenParts[0].padStart(2, '0')}-${hyphenParts[1].padStart(2, '0')}`;
+        }
+        return displayDate;
     };
 
     const formatDateTime = (isoString) => {
