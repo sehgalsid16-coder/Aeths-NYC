@@ -205,38 +205,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 state.bookings = [];
             }
 
-            // Sync guest-facing browser bookings
-            const storedBookings = localStorage.getItem("aether_bookings");
-            if (storedBookings) {
-                const localBookings = JSON.parse(storedBookings);
-                localBookings.forEach(localB => {
-                    const exists = state.bookings.some(b => b.id.toUpperCase() === localB.id.toUpperCase());
-                    if (!exists) {
-                        state.bookings.push({
-                            ...localB,
-                            date: localB.date instanceof Date ? localB.date.toISOString().split('T')[0] : String(localB.date).split('T')[0]
-                        });
-                    }
-                });
-            }
-
             // Load Orders
             const resOrders = await fetch('/api/orders');
             if (resOrders.ok) {
                 state.orders = await resOrders.json();
             } else {
                 state.orders = [];
-            }
-
-            const storedOrders = localStorage.getItem("aether_orders");
-            if (storedOrders) {
-                const localOrders = JSON.parse(storedOrders);
-                localOrders.forEach(localO => {
-                    const exists = state.orders.some(o => o.id.toUpperCase() === localO.id.toUpperCase());
-                    if (!exists) {
-                        state.orders.push(localO);
-                    }
-                });
             }
 
             // Load Vouchers
@@ -246,18 +220,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 state.vouchers = [];
             }
-
-            const storedVouchers = localStorage.getItem("aether_vouchers");
-            if (storedVouchers) {
-                const localVouchers = JSON.parse(storedVouchers);
-                localVouchers.forEach(localV => {
-                    const exists = state.vouchers.some(v => v.voucher_code.toUpperCase() === localV.voucher_code.toUpperCase());
-                    if (!exists) {
-                        state.vouchers.push(localV);
-                    }
-                });
-            }
-
             // Load Audit Log
             const resHistory = await fetch('/api/bookings/history');
             if (resHistory.ok) {

@@ -107,26 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return b;
             });
         } else {
-            const seedDate = new Date();
-            seedDate.setDate(seedDate.getDate() + 3);
-            if (seedDate.getDay() === 0) seedDate.setDate(seedDate.getDate() + 2);
-            if (seedDate.getDay() === 1) seedDate.setDate(seedDate.getDate() + 1);
-            
-            const seedBooking = {
-                id: "AE-2026-F982",
-                name: "Eleanor Sterling",
-                phone: "(212) 555-0198",
-                email: "eleanor.s@vogue.com",
-                date: seedDate,
-                time: "7:00 PM",
-                guests: 2,
-                seatType: "banquette",
-                upgrades: ["upgrade-cellar"],
-                occasion: "Date Night",
-                dietary: "No shellfish, please.",
-                createdAt: new Date().toISOString()
-            };
-            state.bookings = [seedBooking];
+            state.bookings = [];
             saveBookingsToStorage();
         }
 
@@ -135,20 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (storedOrders) {
             state.orders = JSON.parse(storedOrders);
         } else {
-            const seedOrder = {
-                id: "ORD-2026-892182",
-                name: "Eleanor Sterling",
-                phone: "(212) 555-0198",
-                email: "eleanor.s@vogue.com",
-                type: "delivery",
-                address: "Avenue of the Americas, Vogue Tower, NYC",
-                items: { "The Aether Caviar & Champagne Box": 1 },
-                subtotal: 245,
-                total: 260,
-                instructions: "Please leave with front desk.",
-                createdAt: new Date().toISOString()
-            };
-            state.orders = [seedOrder];
+            state.orders = [];
             saveOrdersToStorage();
         }
     };

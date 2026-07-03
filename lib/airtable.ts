@@ -19,58 +19,11 @@ let inMemoryDb: any = null;
 
 // Helper to generate the initial seed state
 function getInitialDbState() {
-  const seedDate = new Date();
-  seedDate.setDate(seedDate.getDate() + 3);
-  if (seedDate.getDay() === 0) seedDate.setDate(seedDate.getDate() + 2);
-  if (seedDate.getDay() === 1) seedDate.setDate(seedDate.getDate() + 1);
-
   return {
-    bookings: [
-      {
-        id: "AE-2026-F982",
-        name: "Eleanor Sterling",
-        phone: "(212) 555-0198",
-        email: "eleanor.s@vogue.com",
-        date: seedDate.toISOString().split('T')[0],
-        time: "7:00 PM",
-        guests: 2,
-        seatType: "banquette",
-        upgrades: ["upgrade-cellar"],
-        occasion: "Date Night",
-        dietary: "No shellfish, please.",
-        status: "confirmed",
-        notes: "Prefers quiet corner. Regular guest.",
-        createdAt: new Date().toISOString()
-      }
-    ],
-    orders: [
-      {
-        id: "ORD-2026-892182",
-        name: "Eleanor Sterling",
-        phone: "(212) 555-0198",
-        email: "eleanor.s@vogue.com",
-        fulfillment_type: "delivery",
-        address: "Avenue of the Americas, Vogue Tower, NYC",
-        items: "1x The Aether Caviar & Champagne Box",
-        subtotal: 245,
-        total: 260,
-        instructions: "Please leave with front desk.",
-        status: "pending",
-        createdAt: new Date().toISOString()
-      }
-    ],
+    bookings: [],
+    orders: [],
     booking_history: [],
-    gift_vouchers: [
-      {
-        voucher_code: "ATH-GIFT-E91B",
-        recipient: "Julian Vance",
-        sender: "Eleanor Sterling",
-        package_id: "gift-2",
-        message: "An invitation to experience a symphony of micro-seasons at Aether NYC.",
-        status: "active",
-        createdAt: new Date().toISOString()
-      }
-    ]
+    gift_vouchers: []
   };
 }
 
