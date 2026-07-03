@@ -14,72 +14,104 @@ const base = isAirtableConfigured ? new Airtable({ apiKey }).base(baseId) : null
 // Local JSON file database fallback path
 const dbFilePath = path.join(process.cwd(), 'db.json');
 
+// Global in-memory state fallback for read-only environments
+let inMemoryDb: any = null;
+
+// Helper to generate the initial seed state
+function getInitialDbState() {
+  const seedDate = new Date();
+  seedDate.setDate(seedDate.getDate() + 3);
+  if (seedDate.getDay() === 0) seedDate.setDate(seedDate.getDate() + 2);
+  if (seedDate.getDay() === 1) seedDate.setDate(seedDate.getDate() + 1);
+
+  return {
+    bookings: [
+      {
+        id: "AE-2026-F982",
+        name: "Eleanor Sterling",
+        phone: "(212) 555-0198",
+        email: "eleanor.s@vogue.com",
+        date: seedDate.toISOString().split('T')[0],
+        time: "7:00 PM",
+        guests: 2,
+        seatType: "banquette",
+        upgrades: ["upgrade-cellar"],
+        occasion: "Date Night",
+        dietary: "No shellfish, please.",
+        status: "confirmed",
+        notes: "Prefers quiet corner. Regular guest.",
+        createdAt: new Date().toISOString()
+      }
+    ],
+    orders: [
+      {
+        id: "ORD-2026-892182",
+        name: "Eleanor Sterling",
+        phone: "(212) 555-0198",
+        email: "eleanor.s@vogue.com",
+        fulfillment_type: "delivery",
+        address: "Avenue of the Americas, Vogue Tower, NYC",
+        items: "1x The Aether Caviar & Champagne Box",
+        subtotal: 245,
+        total: 260,
+        instructions: "Please leave with front desk.",
+        status: "pending",
+        createdAt: new Date().toISOString()
+      }
+    ],
+    booking_history: [],
+    gift_vouchers: [
+      {
+        voucher_code: "ATH-GIFT-E91B",
+        recipient: "Julian Vance",
+        sender: "Eleanor Sterling",
+        package_id: "gift-2",
+        message: "An invitation to experience a symphony of micro-seasons at Aether NYC.",
+        status: "active",
+        createdAt: new Date().toISOString()
+      }
+    ]
+  };
+}
+
 // Helper to load local database state
 function loadLocalDb() {
-  if (!fs.existsSync(dbFilePath)) {
-    const initialState = {
-      bookings: [
-        {
-          id: "AE-2026-F982",
-          name: "Eleanor Sterling",
-          phone: "(212) 555-0198",
-          email: "eleanor.s@vogue.com",
-          date: "2026-07-08",
-          time: "7:00 PM",
-          guests: 2,
-          seatType: "banquette",
-          upgrades: ["upgrade-cellar"],
-          occasion: "Date Night",
-          dietary: "No shellfish, please.",
-          status: "confirmed",
-          notes: "Prefers quiet corner. Regular guest.",
-          createdAt: new Date().toISOString()
-        }
-      ],
-      orders: [
-        {
-          id: "ORD-2026-892182",
-          name: "Eleanor Sterling",
-          phone: "(212) 555-0198",
-          email: "eleanor.s@vogue.com",
-          fulfillment_type: "delivery",
-          address: "Avenue of the Americas, Vogue Tower, NYC",
-          items: "1x The Aether Caviar & Champagne Box",
-          subtotal: 245,
-          total: 260,
-          instructions: "Please leave with front desk.",
-          status: "pending",
-          createdAt: new Date().toISOString()
-        }
-      ],
-      booking_history: [],
-      gift_vouchers: [
-        {
-          voucher_code: "ATH-GIFT-E91B",
-          recipient: "Julian Vance",
-          sender: "Eleanor Sterling",
-          package_id: "gift-2",
-          message: "An invitation to experience a symphony of micro-seasons at Aether NYC.",
-          status: "active",
-          createdAt: new Date().toISOString()
-        }
-      ]
-    };
-    fs.writeFileSync(dbFilePath, JSON.stringify(initialState, null, 2));
-    return initialState;
+  if (inMemoryDb) {
+    return inMemoryDb;
   }
+
+  const activeDbPath = process.env.VERCEL ? path.join('/tmp', 'db.json') : dbFilePath;
+
   try {
-    const raw = fs.readFileSync(dbFilePath, 'utf8');
-    return JSON.parse(raw);
+    if (!fs.existsSync(activeDbPath)) {
+      const initialState = getInitialDbState();
+      fs.writeFileSync(activeDbPath, JSON.stringify(initialState, null, 2));
+      inMemoryDb = initialState;
+      return initialState;
+    }
+    
+    const raw = fs.readFileSync(activeDbPath, 'utf8');
+    inMemoryDb = JSON.parse(raw);
+    return inMemoryDb;
   } catch (e) {
-    console.error("Failed to read local fallback db, resetting:", e);
-    return { bookings: [], orders: [], booking_history: [], gift_vouchers: [] };
+    console.warn("Local db read/write failed, using in-memory fallback:", e);
+    if (!inMemoryDb) {
+      inMemoryDb = getInitialDbState();
+    }
+    return inMemoryDb;
   }
 }
 
 // Helper to write local database state
 function saveLocalDb(data: any) {
-  fs.writeFileSync(dbFilePath, JSON.stringify(data, null, 2));
+  inMemoryDb = data;
+  const activeDbPath = process.env.VERCEL ? path.join('/tmp', 'db.json') : dbFilePath;
+
+  try {
+    fs.writeFileSync(activeDbPath, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.warn("Local db write failed, changes kept in memory:", e);
+  }
 }
 
 // Map Airtable record to Booking object

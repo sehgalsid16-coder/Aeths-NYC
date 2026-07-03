@@ -908,7 +908,6 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
                 console.error("Booking API error:", err);
-                showToast("Connection Error", "Failed to sync online. Saving locally.");
                 finalizeBooking();
             });
         });
@@ -1498,7 +1497,6 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
                 console.error("API reschedule error:", err);
-                showToast("Connection Error", "Failed to reschedule online. Saved locally.");
                 finalizeReschedule();
             })
             .finally(() => {
@@ -1822,7 +1820,6 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
                 console.error("API order placement error:", err);
-                showToast("Connection Error", "Failed to save order online. Saved locally.");
                 finalizeOrder();
             });
         });
@@ -1951,7 +1948,6 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
                 console.error("API voucher purchase error:", err);
-                showToast("Connection Error", "Failed to save voucher online. Saved locally.");
                 finalizeGift();
             });
         });
