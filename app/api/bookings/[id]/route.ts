@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getBookingById, updateBooking, createBookingHistory } from '@/lib/airtable';
+import { getBookingById, updateBooking, createBookingHistory, deleteBooking } from '@/lib/airtable';
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -59,6 +59,40 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ success: true, booking: { ...originalBooking, ...fieldsToUpdate } });
   } catch (error: any) {
     console.error("PATCH /api/bookings/[id] error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const id = params.id;
+    const { searchParams } = new URL(request.url);
+    const reason = searchParams.get('reason') || 'Staff deleted booking';
+
+    const originalBooking = await getBookingById(id);
+    if (!originalBooking) {
+      return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+    }
+
+    const success = await deleteBooking(id);
+    if (!success) {
+      return NextResponse.json({ error: 'Failed to delete booking' }, { status: 500 });
+    }
+
+    // Log deletion to Booking_History
+    await createBookingHistory({
+      booking_id: id,
+      action: 'deleted',
+      original_date: originalBooking.date,
+      original_time: originalBooking.time,
+      new_date: '',
+      new_time: '',
+      reason: reason
+    });
+
+    return NextResponse.json({ success: true, message: 'Booking deleted successfully' });
+  } catch (error: any) {
+    console.error("DELETE /api/bookings/[id] error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modalCreateBooking: document.getElementById("modal-create-booking"),
         modalRescheduleBooking: document.getElementById("modal-reschedule-booking"),
         modalCancelBooking: document.getElementById("modal-cancel-booking"),
+        modalDeleteBooking: document.getElementById("modal-delete-booking"),
         modalEditNotes: document.getElementById("modal-edit-notes"),
         modalCreateVoucher: document.getElementById("modal-create-voucher"),
 
@@ -87,6 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
         btnCancelReschedule: document.getElementById("btn-cancel-reschedule"),
         btnCloseCancel: document.getElementById("btn-close-cancel"),
         btnDismissCancel: document.getElementById("btn-dismiss-cancel"),
+        btnCloseDelete: document.getElementById("btn-close-delete"),
+        btnDismissDelete: document.getElementById("btn-dismiss-delete"),
         btnCloseNotes: document.getElementById("btn-close-notes"),
         btnCancelNotes: document.getElementById("btn-cancel-notes"),
         btnCloseCreateVoucher: document.getElementById("btn-close-create-voucher"),
@@ -96,8 +99,11 @@ document.addEventListener("DOMContentLoaded", () => {
         createBookingForm: document.getElementById("create-booking-form"),
         rescheduleBookingForm: document.getElementById("reschedule-booking-form"),
         cancelBookingForm: document.getElementById("cancel-booking-form"),
+        deleteBookingForm: document.getElementById("delete-booking-form"),
         editNotesForm: document.getElementById("edit-notes-form"),
-        createVoucherForm: document.getElementById("create-voucher-form")
+        createVoucherForm: document.getElementById("create-voucher-form"),
+        
+        btnPurgeAllBookings: document.getElementById("btn-purge-all-bookings")
     };
 
     // --- INITIAL DATE SETUP ---
@@ -555,9 +561,12 @@ document.addEventListener("DOMContentLoaded", () => {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-range"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M17 14h-6M13 18H7"/></svg>
                         </button>
                         <button type="button" class="btn-action danger btn-cancel" data-id="${b.id}" data-name="${escapeHTML(b.name)}" title="Cancel Reservation">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ban"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
                         </button>
                         ` : ''}
+                        <button type="button" class="btn-action danger btn-delete" data-id="${b.id}" data-name="${escapeHTML(b.name)}" title="Delete Permanently">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+                        </button>
                     </div>
                 </td>
             `;
@@ -583,6 +592,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const id = btn.getAttribute("data-id");
                 const name = btn.getAttribute("data-name");
                 openCancelModal(id, name);
+            });
+        });
+        document.querySelectorAll(".btn-delete").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.getAttribute("data-id");
+                const name = btn.getAttribute("data-name");
+                openDeleteModal(id, name);
             });
         });
     };
@@ -827,6 +843,7 @@ document.addEventListener("DOMContentLoaded", () => {
             closeModal(elements.modalCreateBooking);
             closeModal(elements.modalRescheduleBooking);
             closeModal(elements.modalCancelBooking);
+            closeModal(elements.modalDeleteBooking);
             closeModal(elements.modalEditNotes);
             closeModal(elements.modalCreateVoucher);
         }
@@ -843,6 +860,7 @@ document.addEventListener("DOMContentLoaded", () => {
     wireCloseEvents(elements.btnOpenCreateVoucher, elements.btnCloseCreateVoucher, elements.btnCancelCreateVoucher, elements.modalCreateVoucher);
     wireCloseEvents(null, elements.btnCloseReschedule, elements.btnCancelReschedule, elements.modalRescheduleBooking);
     wireCloseEvents(null, elements.btnCloseCancel, elements.btnDismissCancel, elements.modalCancelBooking);
+    wireCloseEvents(null, elements.btnCloseDelete, elements.btnDismissDelete, elements.modalDeleteBooking);
     wireCloseEvents(null, elements.btnCloseNotes, elements.btnCancelNotes, elements.modalEditNotes);
 
 
@@ -1019,6 +1037,93 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (err) {
                 console.error(err);
                 showToast("Cancel Failed", "Could not complete cancellation.", true);
+            }
+        });
+    }
+
+    // 3b. Delete Modal
+    const openDeleteModal = (bookingId, guestName) => {
+        state.currentEditBookingId = bookingId;
+        document.getElementById("delete-guest-name").textContent = guestName;
+        document.getElementById("delete-code").textContent = bookingId;
+        
+        const deleteReasonSelect = document.getElementById("delete-reason-select");
+        const deleteReasonCustom = document.getElementById("delete-reason-custom");
+        if (deleteReasonSelect) {
+            deleteReasonSelect.value = "Due to restaurant closure";
+        }
+        if (deleteReasonCustom) {
+            deleteReasonCustom.value = "";
+            deleteReasonCustom.style.display = "none";
+            deleteReasonCustom.required = false;
+        }
+        
+        openModal(elements.modalDeleteBooking);
+    };
+
+    const deleteReasonSelect = document.getElementById("delete-reason-select");
+    const deleteReasonCustom = document.getElementById("delete-reason-custom");
+    if (deleteReasonSelect && deleteReasonCustom) {
+        deleteReasonSelect.addEventListener("change", (e) => {
+            if (e.target.value === "Other / Custom Reason") {
+                deleteReasonCustom.style.display = "block";
+                deleteReasonCustom.required = true;
+            } else {
+                deleteReasonCustom.style.display = "none";
+                deleteReasonCustom.required = false;
+            }
+        });
+    }
+
+    if (elements.deleteBookingForm) {
+        elements.deleteBookingForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = state.currentEditBookingId;
+            const selectVal = deleteReasonSelect ? deleteReasonSelect.value : "Due to restaurant closure";
+            const customVal = deleteReasonCustom ? deleteReasonCustom.value.trim() : "";
+            const reason = selectVal === "Other / Custom Reason" ? customVal : selectVal;
+
+            try {
+                const res = await fetch(`/api/bookings/${id}?reason=${encodeURIComponent(reason)}`, {
+                    method: "DELETE"
+                });
+
+                if (!res.ok) throw new Error("Delete error");
+
+                // Update local storage in browser
+                const localBookings = JSON.parse(localStorage.getItem("aether_bookings") || "[]");
+                const updatedLocal = localBookings.filter(b => b.id !== id);
+                localStorage.setItem("aether_bookings", JSON.stringify(updatedLocal));
+
+                closeModal(elements.modalDeleteBooking);
+                showToast("Booking Deleted", `Reservation ${id} has been permanently purged.`);
+                await loadAllData();
+            } catch (err) {
+                console.error(err);
+                showToast("Delete Failed", "Could not complete deletion.", true);
+            }
+        });
+    }
+
+    // 3c. Clear/Purge All Bookings
+    if (elements.btnPurgeAllBookings) {
+        elements.btnPurgeAllBookings.addEventListener("click", async () => {
+            if (confirm("Are you absolutely sure you want to delete ALL bookings from the system? This action is permanent and cannot be undone.")) {
+                try {
+                    const res = await fetch('/api/bookings', {
+                        method: "DELETE"
+                    });
+                    if (!res.ok) throw new Error("Purge failed");
+
+                    // Clear local storage
+                    localStorage.removeItem("aether_bookings");
+
+                    showToast("System Cleared", "All bookings purged successfully.");
+                    await loadAllData();
+                } catch (err) {
+                    console.error(err);
+                    showToast("Clear Failed", "Could not clear database.", true);
+                }
             }
         });
     }

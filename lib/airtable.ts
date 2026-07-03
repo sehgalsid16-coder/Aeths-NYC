@@ -92,11 +92,25 @@ function loadLocalDb() {
     
     const raw = fs.readFileSync(activeDbPath, 'utf8');
     inMemoryDb = JSON.parse(raw);
+    
+    // Defensive initialization of keys
+    if (!inMemoryDb.bookings) inMemoryDb.bookings = [];
+    if (!inMemoryDb.orders) inMemoryDb.orders = [];
+    if (!inMemoryDb.booking_history) inMemoryDb.booking_history = [];
+    if (!inMemoryDb.gift_vouchers) inMemoryDb.gift_vouchers = [];
+    
     return inMemoryDb;
   } catch (e) {
     console.warn("Local db read/write failed, using in-memory fallback:", e);
     if (!inMemoryDb) {
       inMemoryDb = getInitialDbState();
+    }
+    // Ensure fallback also has keys
+    if (inMemoryDb) {
+      if (!inMemoryDb.bookings) inMemoryDb.bookings = [];
+      if (!inMemoryDb.orders) inMemoryDb.orders = [];
+      if (!inMemoryDb.booking_history) inMemoryDb.booking_history = [];
+      if (!inMemoryDb.gift_vouchers) inMemoryDb.gift_vouchers = [];
     }
     return inMemoryDb;
   }
@@ -308,6 +322,44 @@ export async function updateBooking(id: string, fields: any): Promise<boolean> {
     return true;
   }
   return false;
+}
+
+export async function deleteBooking(id: string): Promise<boolean> {
+  if (base) {
+    try {
+      const records = await base('Bookings').select({
+        filterByFormula: `{id} = '${id}'`,
+        maxRecords: 1
+      }).firstPage();
+      if (records.length > 0) {
+        await base('Bookings').destroy(records[0].id);
+        return true;
+      }
+    } catch (e) {
+      console.error("Airtable deleteBooking error:", e);
+    }
+  }
+  const db = loadLocalDb();
+  db.bookings = db.bookings.filter((b: any) => b.id.toUpperCase() !== id.toUpperCase());
+  saveLocalDb(db);
+  return true;
+}
+
+export async function clearAllBookings(): Promise<boolean> {
+  if (base) {
+    try {
+      const records = await base('Bookings').select().all();
+      for (const rec of records) {
+        await base('Bookings').destroy(rec.id);
+      }
+    } catch (e) {
+      console.error("Airtable clearAllBookings error:", e);
+    }
+  }
+  const db = loadLocalDb();
+  db.bookings = [];
+  saveLocalDb(db);
+  return true;
 }
 
 // --- ORDERS ---

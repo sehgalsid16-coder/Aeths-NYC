@@ -232,7 +232,8 @@
                             <option value="confirmed">Confirmed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
-                        <button type="button" class="btn btn-primary" id="btn-open-create-booking" style="padding: 0.65rem 1.2rem; font-size:0.7rem; letter-spacing:0.1em;">+ New Booking</button>
+                        <button type="button" class="btn btn-primary" id="btn-open-create-booking" style="padding: 0.65rem 1.2rem; font-size:0.7rem; letter-spacing:0.1em; margin-right:0.5rem;">+ New Booking</button>
+                        <button type="button" class="btn btn-primary" id="btn-purge-all-bookings" style="padding: 0.65rem 1.2rem; font-size:0.7rem; letter-spacing:0.1em; background-color:var(--color-danger); border-color:var(--color-danger); color:var(--color-bg);">Clear All Bookings</button>
                     </div>
                 </div>
 
@@ -542,6 +543,40 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" style="padding:0.6rem 1.2rem; font-size:0.65rem;" id="btn-dismiss-cancel">Back</button>
                     <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.65rem; background-color:var(--color-danger); border-color:var(--color-danger); color:var(--color-bg);">Confirm Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Delete Confirmation Modal -->
+    <div class="modal-overlay" id="modal-delete-booking">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Delete Reservation</h3>
+                <button class="modal-close" id="btn-close-delete">&times;</button>
+            </div>
+            <form id="delete-booking-form">
+                <div class="modal-body">
+                    <p style="font-size:0.9rem; color:var(--color-secondary); margin-bottom:1.5rem; line-height:1.6;">
+                        Are you sure you want to completely <strong>delete</strong> the reservation for <strong id="delete-guest-name" style="color:var(--color-primary);">Guest</strong> (<span id="delete-code" style="color:var(--color-gold);">CODE</span>)? This will permanently remove the record from all lists and logs.
+                    </p>
+
+                    <div class="modal-form-group">
+                        <label for="delete-reason-select" class="modal-form-label">Reason for Deletion</label>
+                        <select id="delete-reason-select" class="modal-form-input" style="margin-bottom:0.75rem;">
+                            <option value="Due to restaurant closure">Due to restaurant closure</option>
+                            <option value="Due to rain / bad weather">Due to rain / bad weather</option>
+                            <option value="Duplicate booking entry">Duplicate booking entry</option>
+                            <option value="Guest cancelled via telephone">Guest cancelled via telephone</option>
+                            <option value="No-show / non-attendance">No-show / non-attendance</option>
+                            <option value="Other / Custom Reason">Other / Custom Reason</option>
+                        </select>
+                        <input type="text" id="delete-reason-custom" class="modal-form-input" placeholder="Type custom reason for deletion..." style="display:none; margin-top: 0.5rem;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" style="padding:0.6rem 1.2rem; font-size:0.65rem;" id="btn-dismiss-delete">Back</button>
+                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.65rem; background-color:var(--color-danger); border-color:var(--color-danger); color:var(--color-bg);">Confirm Delete</button>
                 </div>
             </form>
         </div>
