@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether NYC | Concierge Admin Panel</title>
+    <meta name="description" content="Quiet luxury staff control panel and reservation management system for Aether NYC.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+    <!-- --- TOAST CONTAINER (ALERTS) --- -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <div class="admin-wrapper">
+        <!-- --- SIDEBAR NAVIGATION --- -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo">
+                <a href="#" class="logo">
+                    <span class="logo-main" style="font-size:1.15rem;">Aether</span>
+                    <span class="logo-sub" style="font-size:0.48rem; letter-spacing:0.35em;">Concierge</span>
+                </a>
+            </div>
+            
+            <nav style="flex:1;">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item active" data-target="panel-overview">
+                        <button type="button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="10" rx="1"/><rect width="7" height="5" x="3" y="15" rx="1"/></svg>
+                            <span>Overview</span>
+                        </button>
+                    </li>
+                    <li class="sidebar-item" data-target="panel-bookings">
+                        <button type="button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                            <span>Bookings</span>
+                        </button>
+                    </li>
+                    <li class="sidebar-item" data-target="panel-orders">
+                        <button type="button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            <span>Orders</span>
+                        </button>
+                    </li>
+                    <li class="sidebar-item" data-target="panel-vouchers">
+                        <button type="button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ticket"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+                            <span>Vouchers</span>
+                        </button>
+                    </li>
+                    <li class="sidebar-item" data-target="panel-audit">
+                        <button type="button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                            <span>Audit Trail</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="staff-profile">
+                    <div class="staff-avatar">AC</div>
+                    <div class="staff-info">
+                        <span class="staff-name">Aether Concierge</span>
+                        <span class="staff-role">Maitre D'</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- --- MAIN CONTENT AREA --- -->
+        <main class="admin-main">
+            <!-- Top Panel Header -->
+            <header class="admin-header">
+                <div class="header-title-area">
+                    <h1 id="active-panel-title">Maitre D' Desk</h1>
+                    <span class="header-subtitle" id="active-panel-subtitle">Welcome back. The dining room opens at 5:30 PM.</span>
+                </div>
+                <div class="header-actions">
+                    <div class="db-status-badge">
+                        <span class="status-dot online" id="status-dot"></span>
+                        <span id="status-text">Database connected</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ==================== TABS (PANELS) ==================== -->
+
+            <!-- --- PANEL 1: OVERVIEW DASHBOARD --- -->
+            <section class="admin-panel active" id="panel-overview">
+                <!-- Summary Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Reservations Today</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div class="metric-value" id="stat-bookings-today">0</div>
+                        <div class="metric-footer" id="stat-bookings-tomorrow">Tomorrow: 0 bookings</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Covers Committed</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-icon"><path d="M6 2v20M18 2v20M6 12h12"/></svg>
+                        </div>
+                        <div class="metric-value" id="stat-covers-today">0</div>
+                        <div class="metric-footer">Across all seating zones</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Takeaway Orders</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-icon"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                        </div>
+                        <div class="metric-value" id="stat-orders-pending">0</div>
+                        <div class="metric-footer" id="stat-orders-revenue">Sales: $0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Active Vouchers</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-icon"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div class="metric-value" id="stat-vouchers-active">0</div>
+                        <div class="metric-footer">Voucher assets outstanding</div>
+                    </div>
+                </div>
+
+                <!-- Grid layout for Floorplan Visual and Activities -->
+                <div class="overview-grid">
+                    <!-- Floor Plan View Column -->
+                    <div class="dashboard-card">
+                        <div class="card-title-area">
+                            <h3>Seating & Hearth Map</h3>
+                            <input type="date" id="overview-date-picker" class="filter-control" style="font-size:0.75rem; text-transform:none; padding:0.4rem 0.75rem;">
+                        </div>
+                        
+                        <div class="seat-summary-grid">
+                            <div class="seat-summary-box">
+                                <span class="label">Counter Covers</span>
+                                <span class="value" id="covers-counter">0/6</span>
+                                <div class="meter"><div class="fill" id="fill-counter" style="width:0%;"></div></div>
+                            </div>
+                            <div class="seat-summary-box">
+                                <span class="label">Banquette Tables</span>
+                                <span class="value" id="covers-banquette">0/2</span>
+                                <div class="meter"><div class="fill" id="fill-banquette" style="width:0%;"></div></div>
+                            </div>
+                            <div class="seat-summary-box">
+                                <span class="label">Alcove Tables</span>
+                                <span class="value" id="covers-alcove">0/2</span>
+                                <div class="meter"><div class="fill" id="fill-alcove" style="width:0%;"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="overview-floorplan">
+                            <svg class="floorplan-svg" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Kitchen Counter Bar (Top Area) -->
+                                <path d="M 30 35 L 170 35" stroke="#2D2320" stroke-width="6" stroke-linecap="round" fill="none"/>
+                                <text x="100" y="25" fill="#A89F9A" font-size="7" font-family="Inter" font-weight="500" text-anchor="middle">OPEN KITCHEN HEARTH</text>
+                                
+                                <!-- Counter Chairs C1-C6 -->
+                                <g id="floor-counter">
+                                    <circle cx="50" cy="48" r="6" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="70" cy="48" r="6" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="90" cy="48" r="6" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="110" cy="48" r="6" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="130" cy="48" r="6" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="150" cy="48" r="6" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                </g>
+                                
+                                <!-- Dining Room Banquette Tables (Bottom Left) -->
+                                <g id="floor-banquette">
+                                    <!-- Table 1 -->
+                                    <rect x="35" y="90" width="18" height="18" rx="2" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="44" cy="82" r="3.5" stroke="#2D2320" stroke-width="1.2" fill="#1E1614"/>
+                                    <circle cx="44" cy="116" r="3.5" stroke="#2D2320" stroke-width="1.2" fill="#1E1614"/>
+                                    <!-- Table 2 -->
+                                    <rect x="75" y="90" width="18" height="18" rx="2" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="84" cy="82" r="3.5" stroke="#2D2320" stroke-width="1.2" fill="#1E1614"/>
+                                    <circle cx="84" cy="116" r="3.5" stroke="#2D2320" stroke-width="1.2" fill="#1E1614"/>
+                                </g>
+                                
+                                <!-- Premium Window Alcoves (Right Side) -->
+                                <g id="floor-alcove">
+                                    <!-- Alcove Table 1 -->
+                                    <circle cx="155" cy="85" r="9" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="140" cy="85" r="3.5" stroke="#2D2320" stroke-width="1.2" fill="#1E1614"/>
+                                    <circle cx="170" cy="85" r="3.5" stroke="#2D2320" stroke-width="1.2" fill="#1E1614"/>
+                                    
+                                    <!-- Alcove Table 2 -->
+                                    <circle cx="155" cy="120" r="9" stroke="#2D2320" stroke-width="1.5" fill="#1E1614"/>
+                                    <circle cx="140" cy="120" r="3.5" stroke="#2D2320" stroke-width="1.2" fill="#1E1614"/>
+                                    <circle cx="170" cy="120" r="3.5" stroke="#2D2320" stroke-width="1.2" fill="#1E1614"/>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Stream Column -->
+                    <div class="dashboard-card" style="margin-bottom:0;">
+                        <div class="card-title-area">
+                            <h3>Live Activities</h3>
+                        </div>
+                        <div class="activity-stream" id="activity-stream-list">
+                            <!-- JS populated activity trail highlights -->
+                            <div style="text-align:center; padding: 2rem 0; color:var(--color-secondary);">
+                                No recent activity logged.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- --- PANEL 2: BOOKINGS LIST --- -->
+            <section class="admin-panel" id="panel-bookings">
+                <div class="panel-controls">
+                    <div class="search-wrapper">
+                        <input type="text" id="bookings-search" class="search-input" placeholder="Search by name, email, confirmation code...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <div class="filter-group">
+                        <input type="date" id="bookings-filter-date" class="filter-control">
+                        <select id="bookings-filter-zone" class="filter-control">
+                            <option value="">All Zones</option>
+                            <option value="counter">Counter</option>
+                            <option value="banquette">Banquettes</option>
+                            <option value="alcove">Alcoves</option>
+                        </select>
+                        <select id="bookings-filter-status" class="filter-control">
+                            <option value="">All Statuses</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <button type="button" class="btn btn-primary" id="btn-open-create-booking" style="padding: 0.65rem 1.2rem; font-size:0.7rem; letter-spacing:0.1em;">+ New Booking</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="admin-table" id="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Guest Details</th>
+                                <th>Date & Time</th>
+                                <th>Guests</th>
+                                <th>Seating Zone</th>
+                                <th>Upgrades</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-table-body">
+                            <!-- JS populated table rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <!-- --- PANEL 3: CULINARY ORDERS LIST --- -->
+            <section class="admin-panel" id="panel-orders">
+                <div class="panel-controls">
+                    <div class="search-wrapper">
+                        <input type="text" id="orders-search" class="search-input" placeholder="Search by purchaser name, email, order ID...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <div class="filter-group">
+                        <select id="orders-filter-type" class="filter-control">
+                            <option value="">All Types</option>
+                            <option value="delivery">Delivery</option>
+                            <option value="pickup">Pickup</option>
+                        </select>
+                        <select id="orders-filter-status" class="filter-control">
+                            <option value="">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="admin-table" id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Details</th>
+                                <th>Fulfillment Type</th>
+                                <th>Fulfillment Info</th>
+                                <th>Items Ordered</th>
+                                <th>Subtotal / Total</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Fulfill Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                            <!-- JS populated table rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <!-- --- PANEL 4: GIFT VOUCHERS LIST --- -->
+            <section class="admin-panel" id="panel-vouchers">
+                <div class="panel-controls" style="justify-content: flex-end;">
+                    <button type="button" class="btn btn-primary" id="btn-open-create-voucher" style="padding: 0.65rem 1.2rem; font-size:0.7rem; letter-spacing:0.1em;">+ Issue Voucher</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="admin-table" id="vouchers-table">
+                        <thead>
+                            <tr>
+                                <th>Voucher Code</th>
+                                <th>Recipient</th>
+                                <th>Sender</th>
+                                <th>Dining Experience Package</th>
+                                <th>Voucher Message</th>
+                                <th>Date Issued</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vouchers-table-body">
+                            <!-- JS populated table rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <!-- --- PANEL 5: AUDIT TRAIL LOG --- -->
+            <section class="admin-panel" id="panel-audit">
+                <div class="audit-trail-timeline" id="audit-trail-list">
+                    <!-- JS populated audit trail log cards -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ==================== DIALOG MODALS ==================== -->
+
+    <!-- Modal: New Booking Modal -->
+    <div class="modal-overlay" id="modal-create-booking">
+        <div class="modal-container" style="max-width: 580px;">
+            <div class="modal-header">
+                <h3>New Phone/Walk-in Reservation</h3>
+                <button class="modal-close" id="btn-close-create-booking">&times;</button>
+            </div>
+            <form id="create-booking-form">
+                <div class="modal-body">
+                    <div class="modal-form-group">
+                        <label for="new-guest-name" class="modal-form-label">Full Name</label>
+                        <input type="text" id="new-guest-name" class="modal-form-input" placeholder="Eleanor Sterling" required>
+                    </div>
+                    
+                    <div class="form-grid-2">
+                        <div class="modal-form-group">
+                            <label for="new-guest-phone" class="modal-form-label">Phone Number</label>
+                            <input type="tel" id="new-guest-phone" class="modal-form-input" placeholder="(212) 555-0198" required>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="new-guest-email" class="modal-form-label">Email Address</label>
+                            <input type="email" id="new-guest-email" class="modal-form-input" placeholder="eleanor.s@vogue.com" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid-2">
+                        <div class="modal-form-group">
+                            <label for="new-guest-date" class="modal-form-label">Date</label>
+                            <input type="date" id="new-guest-date" class="modal-form-input" required>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="new-guest-time" class="modal-form-label">Time Slot</label>
+                            <select id="new-guest-time" class="modal-form-input" required>
+                                <option value="5:30 PM">5:30 PM</option>
+                                <option value="6:00 PM">6:00 PM</option>
+                                <option value="6:30 PM">6:30 PM</option>
+                                <option value="7:00 PM">7:00 PM</option>
+                                <option value="7:30 PM">7:30 PM</option>
+                                <option value="8:00 PM">8:00 PM</option>
+                                <option value="8:30 PM">8:30 PM</option>
+                                <option value="9:00 PM">9:00 PM</option>
+                                <option value="9:30 PM">9:30 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="modal-form-group">
+                            <label for="new-guest-covers" class="modal-form-label">Party Size (Guests)</label>
+                            <select id="new-guest-covers" class="modal-form-input" required>
+                                <option value="1">1 Guest</option>
+                                <option value="2" selected>2 Guests</option>
+                                <option value="3">3 Guests</option>
+                                <option value="4">4 Guests</option>
+                                <option value="5">5 Guests</option>
+                                <option value="6">6 Guests</option>
+                                <option value="7">7 Guests</option>
+                                <option value="8">8 Guests</option>
+                            </select>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="new-guest-zone" class="modal-form-label">Seating Location</label>
+                            <select id="new-guest-zone" class="modal-form-input" required>
+                                <option value="counter">Chef's Counter</option>
+                                <option value="banquette">Dining Room Banquette</option>
+                                <option value="alcove">Window Alcove Table</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="new-guest-occasion" class="modal-form-label">Occasion</label>
+                        <select id="new-guest-occasion" class="modal-form-input">
+                            <option value="None">No Occasion</option>
+                            <option value="Anniversary">Anniversary</option>
+                            <option value="Birthday">Birthday</option>
+                            <option value="Date Night">Date Night</option>
+                            <option value="Business">Business Dining</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label class="modal-form-label">Enhancements / Upgrades</label>
+                        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.25rem;">
+                            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; cursor:pointer;">
+                                <input type="checkbox" name="new-upgrades" value="upgrade-cellar"> Cellar Tour ($0)
+                            </label>
+                            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; cursor:pointer;">
+                                <input type="checkbox" name="new-upgrades" value="upgrade-flowers"> Table Florals ($0)
+                            </label>
+                            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; cursor:pointer;">
+                                <input type="checkbox" name="new-upgrades" value="upgrade-cookbook"> Signed Cookbook ($0)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="new-guest-dietary" class="modal-form-label">Special Requests / Dietary Restrictions / Maitre D' Notes</label>
+                        <textarea id="new-guest-dietary" class="modal-form-input modal-form-textarea" placeholder="Note allergies, preferred staff service notes, VIP flags..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" style="padding:0.6rem 1.2rem; font-size:0.65rem;" id="btn-cancel-create-booking">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.65rem;">Create Reservation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Reschedule Reservation Modal -->
+    <div class="modal-overlay" id="modal-reschedule-booking">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Reschedule Reservation</h3>
+                <button class="modal-close" id="btn-close-reschedule">&times;</button>
+            </div>
+            <form id="reschedule-booking-form">
+                <div class="modal-body">
+                    <div class="modal-form-group">
+                        <label class="modal-form-label">Booking Reference</label>
+                        <input type="text" id="resch-code" class="modal-form-input" readonly>
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label class="modal-form-label">Guest Name</label>
+                        <input type="text" id="resch-name" class="modal-form-input" readonly>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="modal-form-group">
+                            <label for="resch-date" class="modal-form-label">New Date</label>
+                            <input type="date" id="resch-date" class="modal-form-input" required>
+                        </div>
+                        
+                        <div class="modal-form-group">
+                            <label for="resch-time" class="modal-form-label">New Time Slot</label>
+                            <select id="resch-time" class="modal-form-input" required>
+                                <option value="5:30 PM">5:30 PM</option>
+                                <option value="6:00 PM">6:00 PM</option>
+                                <option value="6:30 PM">6:30 PM</option>
+                                <option value="7:00 PM">7:00 PM</option>
+                                <option value="7:30 PM">7:30 PM</option>
+                                <option value="8:00 PM">8:00 PM</option>
+                                <option value="8:30 PM">8:30 PM</option>
+                                <option value="9:00 PM">9:00 PM</option>
+                                <option value="9:30 PM">9:30 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="resch-covers" class="modal-form-label">Party Size (Guests)</label>
+                        <select id="resch-covers" class="modal-form-input" required>
+                            <option value="1">1 Guest</option>
+                            <option value="2">2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                            <option value="5">5 Guests</option>
+                            <option value="6">6 Guests</option>
+                            <option value="7">7 Guests</option>
+                            <option value="8">8 Guests</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="resch-reason" class="modal-form-label">Reason for Change (Audit Trail Log)</label>
+                        <input type="text" id="resch-reason" class="modal-form-input" placeholder="Staff rescheduling due to guest phone-in request" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" style="padding:0.6rem 1.2rem; font-size:0.65rem;" id="btn-cancel-reschedule">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.65rem;">Confirm Reschedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Cancel Confirmation Modal -->
+    <div class="modal-overlay" id="modal-cancel-booking">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Cancel Reservation</h3>
+                <button class="modal-close" id="btn-close-cancel">&times;</button>
+            </div>
+            <form id="cancel-booking-form">
+                <div class="modal-body">
+                    <p style="font-size:0.9rem; color:var(--color-secondary); margin-bottom:1.5rem; line-height:1.6;">
+                        Are you sure you want to cancel the reservation for <strong id="cancel-guest-name" style="color:var(--color-primary);">Guest</strong> (<span id="cancel-code" style="color:var(--color-gold);">CODE</span>)? This action is immediate and will release the covers back to the availability pool.
+                    </p>
+
+                    <div class="modal-form-group">
+                        <label for="cancel-reason" class="modal-form-label">Reason for Cancellation (Audit Trail Log)</label>
+                        <input type="text" id="cancel-reason" class="modal-form-input" placeholder="Guest request via phone / email cancellation request" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" style="padding:0.6rem 1.2rem; font-size:0.65rem;" id="btn-dismiss-cancel">Back</button>
+                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.65rem; background-color:var(--color-danger); border-color:var(--color-danger); color:var(--color-bg);">Confirm Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Edit Notes Modal -->
+    <div class="modal-overlay" id="modal-edit-notes">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Maitre D' Notes & Special Requests</h3>
+                <button class="modal-close" id="btn-close-notes">&times;</button>
+            </div>
+            <form id="edit-notes-form">
+                <input type="hidden" id="edit-notes-id">
+                <div class="modal-body">
+                    <div class="modal-form-group">
+                        <label class="modal-form-label">Booking Reference</label>
+                        <input type="text" id="edit-notes-code" class="modal-form-input" readonly>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="edit-notes-textarea" class="modal-form-label">Maitre D' Special Notes</label>
+                        <textarea id="edit-notes-textarea" class="modal-form-input modal-form-textarea" placeholder="Add VIP flags, dietary requirements, table seating notes..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" style="padding:0.6rem 1.2rem; font-size:0.65rem;" id="btn-cancel-notes">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.65rem;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: New Gift Voucher Modal -->
+    <div class="modal-overlay" id="modal-create-voucher">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Issue Dining Gift Voucher</h3>
+                <button class="modal-close" id="btn-close-create-voucher">&times;</button>
+            </div>
+            <form id="create-voucher-form">
+                <div class="modal-body">
+                    <div class="form-grid-2">
+                        <div class="modal-form-group">
+                            <label for="voucher-sender" class="modal-form-label">Sender Name</label>
+                            <input type="text" id="voucher-sender" class="modal-form-input" placeholder="Eleanor Sterling" required>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="voucher-recipient" class="modal-form-label">Recipient Name</label>
+                            <input type="text" id="voucher-recipient" class="modal-form-input" placeholder="Julian Vance" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="voucher-package" class="modal-form-label">Dining Package</label>
+                        <select id="voucher-package" class="modal-form-input" required>
+                            <option value="gift-1">Solo Connoisseur Journey ($295)</option>
+                            <option value="gift-2" selected>Duet Tasting Celebration ($590)</option>
+                            <option value="gift-3">Sommelier Prestige Duet ($940)</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="voucher-message" class="modal-form-label">Voucher Message</label>
+                        <textarea id="voucher-message" class="modal-form-input modal-form-textarea" placeholder="An invitation to experience a symphony of micro-seasons at Aether NYC."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" style="padding:0.6rem 1.2rem; font-size:0.65rem;" id="btn-cancel-create-voucher">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.2rem; font-size:0.65rem;">Issue Gift Card</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- --- DYNAMIC ADMIN JS LOGIC --- -->
+    <script src="js/admin.js"></script>
+</body>
+</html>

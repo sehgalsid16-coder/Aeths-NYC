@@ -28,19 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
         activePortalTab: "bookings"
     };
 
-    // --- SUPABASE CONFIGURATION ---
-    const SUPABASE_PROJECT_REF = "pedntrxasffdnmimkbbn"; 
-    const SUPABASE_URL = `https://${SUPABASE_PROJECT_REF}.supabase.co`;
-    const SUPABASE_ANON_KEY = "sb_publishable_J-nZkoITLxUvtQexNJynrQ_mgci7KbP";
-    
-    let supabase = null;
-    try {
-        if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-    } catch (e) {
-        console.error("Failed to initialize Supabase:", e);
-    }
+    // --- DATABASE API CONFIGURATION ---
+    const useApiRoutes = true;
 
     const formatDate = (date) => {
         if (!date) return '';
@@ -526,26 +515,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const loadMonthAvailability = async (monthState) => {
         monthAvailabilityMap = {};
-        if (!supabase) return;
-        
         try {
+            const res = await fetch('/api/bookings');
+            if (!res.ok) throw new Error("Failed to fetch bookings");
+            const data = await res.json();
+            
             const year = monthState.getFullYear();
             const month = monthState.getMonth();
-            const start = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-            const end = `${year}-${String(month + 1).padStart(2, '0')}-${new Date(year, month + 1, 0).getDate()}`;
-            
-            const { data, error } = await supabase
-                .from('reservations')
-                .select('date, status')
-                .neq('status', 'cancelled')
-                .gte('date', start)
-                .lte('date', end);
-                
-            if (error) throw error;
             
             data.forEach(b => {
-                const dateStr = new Date(b.date + "T00:00:00").toDateString();
-                monthAvailabilityMap[dateStr] = (monthAvailabilityMap[dateStr] || 0) + 1;
+                const bDate = new Date(b.date + "T00:00:00");
+                if (bDate.getFullYear() === year && bDate.getMonth() === month && b.status !== 'cancelled') {
+                    const dateStr = bDate.toDateString();
+                    monthAvailabilityMap[dateStr] = (monthAvailabilityMap[dateStr] || 0) + 1;
+                }
             });
         } catch (e) {
             console.error("Error loading month availability:", e);
@@ -554,16 +537,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const loadDayReservations = async (date) => {
         dayReservations = [];
-        if (!supabase) return;
-        
         try {
-            const { data, error } = await supabase
-                .from('reservations')
-                .select('time, seat_type, guests')
-                .eq('date', formatDate(date))
-                .neq('status', 'cancelled');
-            if (error) throw error;
-            dayReservations = data;
+            const res = await fetch('/api/bookings');
+            if (!res.ok) throw new Error("Failed to fetch bookings");
+            const data = await res.json();
+            const dateStr = formatDate(date);
+            dayReservations = data.filter(b => b.date === dateStr && b.status !== 'cancelled').map(b => ({
+                time: b.time,
+                seat_type: b.seatType,
+                guests: b.guests
+            }));
         } catch (e) {
             console.error("Error loading day reservations:", e);
         }
@@ -899,8 +882,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast("Reservation Confirmed", `Confirmation sent to ${email}`);
             };
 
-            if (supabase) {
-                supabase.from('reservations').insert([{
+            fetch('/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     id: newBooking.id,
                     name: newBooking.name,
                     phone: newBooking.phone,
@@ -908,24 +893,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     date: formatDate(newBooking.date),
                     time: newBooking.time,
                     guests: newBooking.guests,
-                    seat_type: newBooking.seatType,
+                    seatType: newBooking.seatType,
                     upgrades: newBooking.upgrades,
                     occasion: newBooking.occasion,
-                    dietary: newBooking.dietary,
-                    status: 'confirmed'
-                }]).then(({ error }) => {
-                    if (error) {
-                        console.error("Supabase insert error:", error);
-                        showToast("Database Error", "Failed to sync. Saving locally.");
-                    }
-                    finalizeBooking();
-                }).catch(err => {
-                    console.error("Supabase insert crash:", err);
-                    finalizeBooking();
-                });
-            } else {
-                setTimeout(finalizeBooking, 1200);
-            }
+                    dietary: newBooking.dietary
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to insert booking");
+                return res.json();
+            })
+            .then(() => {
+                finalizeBooking();
+            })
+            .catch(err => {
+                console.error("Booking API error:", err);
+                showToast("Connection Error", "Failed to sync online. Saving locally.");
+                finalizeBooking();
+            });
         });
     }
 
@@ -1094,50 +1079,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (elements.manageResVerifyState) elements.manageResVerifyState.style.display = "none";
                 if (elements.manageResLoadingState) elements.manageResLoadingState.style.display = "block";
 
-                // Simulate Concierge Lookup
-                await new Promise(resolve => setTimeout(resolve, 1200));
-
-                // Search local state
-                foundBooking = state.bookings.find(b => 
-                    b.id.toUpperCase() === refId.toUpperCase() && 
-                    b.email.toLowerCase() === email.toLowerCase()
-                );
-
-                // Supabase fallback
-                if (!foundBooking && supabase) {
-                    try {
-                        const { data, error } = await supabase
-                            .from("reservations")
-                            .select("*")
-                            .eq("id", refId.toUpperCase())
-                            .eq("email", email.toLowerCase())
-                            .neq("status", "cancelled");
-                        
-                        if (!error && data && data.length > 0) {
-                            const b = data[0];
-                            foundBooking = {
-                                id: b.id,
-                                name: b.name,
-                                phone: b.phone,
-                                email: b.email,
-                                date: new Date(b.date + "T00:00:00"),
-                                time: b.time,
-                                guests: b.guests,
-                                seatType: b.seat_type,
-                                upgrades: b.upgrades || [],
-                                occasion: b.occasion,
-                                dietary: b.dietary,
-                                status: b.status
-                            };
-                            // sync to state
-                            if (!state.bookings.some(x => x.id === foundBooking.id)) {
-                                state.bookings.push(foundBooking);
-                                saveBookingsToStorage();
-                            }
+                // Fetch from our API
+                try {
+                    const res = await fetch(`/api/bookings?id=${encodeURIComponent(refId)}&email=${encodeURIComponent(email)}`);
+                    if (res.ok) {
+                        const b = await res.json();
+                        foundBooking = {
+                            id: b.id,
+                            name: b.name,
+                            phone: b.phone,
+                            email: b.email,
+                            date: new Date(b.date + "T00:00:00"),
+                            time: b.time,
+                            guests: b.guests,
+                            seatType: b.seatType,
+                            upgrades: b.upgrades || [],
+                            occasion: b.occasion,
+                            dietary: b.dietary,
+                            status: b.status
+                        };
+                        // sync to local state
+                        if (!state.bookings.some(x => x.id === foundBooking.id)) {
+                            state.bookings.push(foundBooking);
+                            saveBookingsToStorage();
                         }
-                    } catch (e) {
-                        console.error("Supabase search error:", e);
                     }
+                } catch (e) {
+                    console.error("API lookup error:", e);
                 }
             } else {
                 const phone = elements.managePhoneNumInput ? elements.managePhoneNumInput.value.trim() : "";
@@ -1152,30 +1120,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (elements.manageResVerifyState) elements.manageResVerifyState.style.display = "none";
                 if (elements.manageResLoadingState) elements.manageResLoadingState.style.display = "block";
 
-                // Simulate Concierge Lookup
-                await new Promise(resolve => setTimeout(resolve, 1200));
-
                 const cleanPhone = phone.replace(/\D/g, '');
 
-                // Search local state
-                foundBooking = state.bookings.find(b => {
-                    const bookingDateStr = formatDate(b.date); // YYYY-MM-DD
-                    const cleanBookingPhone = b.phone.replace(/\D/g, '');
-                    return cleanBookingPhone === cleanPhone && bookingDateStr === dateVal;
-                });
-
-                // Supabase fallback
-                if (!foundBooking && supabase) {
-                    try {
-                        const { data, error } = await supabase
-                            .from("reservations")
-                            .select("*")
-                            .eq("phone", phone)
-                            .eq("date", dateVal)
-                            .neq("status", "cancelled");
-                        
-                        if (!error && data && data.length > 0) {
-                            const b = data[0];
+                try {
+                    const res = await fetch('/api/bookings');
+                    if (res.ok) {
+                        const bookingsList = await res.json();
+                        const b = bookingsList.find(x => {
+                            const cleanBookingPhone = x.phone.replace(/\D/g, '');
+                            return cleanBookingPhone === cleanPhone && x.date === dateVal && x.status !== 'cancelled';
+                        });
+                        if (b) {
                             foundBooking = {
                                 id: b.id,
                                 name: b.name,
@@ -1184,21 +1139,21 @@ document.addEventListener("DOMContentLoaded", () => {
                                 date: new Date(b.date + "T00:00:00"),
                                 time: b.time,
                                 guests: b.guests,
-                                seatType: b.seat_type,
+                                seatType: b.seatType,
                                 upgrades: b.upgrades || [],
                                 occasion: b.occasion,
                                 dietary: b.dietary,
                                 status: b.status
                             };
-                            // sync to state
+                            // sync to local state
                             if (!state.bookings.some(x => x.id === foundBooking.id)) {
                                 state.bookings.push(foundBooking);
                                 saveBookingsToStorage();
                             }
                         }
-                    } catch (e) {
-                        console.error("Supabase search error:", e);
                     }
+                } catch (e) {
+                    console.error("API phone lookup error:", e);
                 }
             }
 
@@ -1299,24 +1254,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast("Requests Updated", "Your special requests have been successfully updated.");
             };
 
-            if (supabase) {
-                try {
-                    const { error } = await supabase
-                        .from('reservations')
-                        .update({ dietary: updatedRequests })
-                        .eq('id', booking.id);
-                    
-                    if (error) {
-                        console.error("Supabase update dietary error:", error);
-                        showToast("Database Error", "Failed to save changes online. Saved locally.");
-                    }
-                    finalizeSave();
-                } catch (err) {
-                    console.error("Supabase update dietary catch:", err);
-                    finalizeSave();
-                }
-            } else {
-                setTimeout(finalizeSave, 800);
+            try {
+                const res = await fetch(`/api/bookings/${booking.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes: booking.notes, dietary: updatedRequests })
+                });
+                if (!res.ok) throw new Error("Failed to save requests");
+                finalizeSave();
+            } catch (err) {
+                console.error("API update requests error:", err);
+                showToast("Connection Error", "Failed to save changes online. Saved locally.");
+                finalizeSave();
             }
         });
     }
@@ -1389,28 +1338,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateBookingCalendar();
             };
             
-            if (supabase) {
-                confirmCancelBtn.textContent = "Cancelling...";
-                confirmCancelBtn.disabled = true;
-                
-                supabase.from('reservations').update({
-                    status: 'cancelled'
-                }).eq('id', id).then(({ error }) => {
-                    if (error) {
-                        console.error("Supabase cancellation error:", error);
-                        showToast("Database Error", "Failed to cancel online.");
-                    }
-                    finalizeCancel();
-                }).catch(err => {
-                    console.error("Supabase cancellation crash:", err);
-                    finalizeCancel();
-                }).finally(() => {
-                    confirmCancelBtn.textContent = "Confirm Cancellation";
-                    confirmCancelBtn.disabled = false;
-                });
-            } else {
+            confirmCancelBtn.textContent = "Cancelling...";
+            confirmCancelBtn.disabled = true;
+            
+            fetch(`/api/bookings/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'cancel', reason: 'Guest cancelled reservation' })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to cancel booking");
+                return res.json();
+            })
+            .then(() => {
                 finalizeCancel();
-            }
+            })
+            .catch(err => {
+                console.error("API cancel error:", err);
+                showToast("Connection Error", "Failed to cancel online. Saved locally.");
+                finalizeCancel();
+            })
+            .finally(() => {
+                confirmCancelBtn.textContent = "Confirm Cancellation";
+                confirmCancelBtn.disabled = false;
+            });
         });
     }
 
@@ -1524,31 +1475,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateBookingCalendar();
             };
             
-            if (supabase) {
-                submitRescheduleBtn.textContent = "Updating...";
-                submitRescheduleBtn.disabled = true;
-                
-                supabase.from('reservations').update({
+            submitRescheduleBtn.textContent = "Updating...";
+            submitRescheduleBtn.disabled = true;
+            
+            fetch(`/api/bookings/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'reschedule',
                     date: formatDate(state.rescheduleSelectedDate),
                     time: state.rescheduleSelectedTime,
                     guests: guests,
-                    status: 'confirmed'
-                }).eq('id', id).then(({ error }) => {
-                    if (error) {
-                        console.error("Supabase reschedule error:", error);
-                        showToast("Database Error", "Failed to reschedule online.");
-                    }
-                    finalizeReschedule();
-                }).catch(err => {
-                    console.error("Supabase reschedule query crash:", err);
-                    finalizeReschedule();
-                }).finally(() => {
-                    submitRescheduleBtn.textContent = "Update Reservation";
-                    submitRescheduleBtn.disabled = false;
-                });
-            } else {
+                    reason: 'Guest rescheduled reservation'
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to reschedule");
+                return res.json();
+            })
+            .then(() => {
                 finalizeReschedule();
-            }
+            })
+            .catch(err => {
+                console.error("API reschedule error:", err);
+                showToast("Connection Error", "Failed to reschedule online. Saved locally.");
+                finalizeReschedule();
+            })
+            .finally(() => {
+                submitRescheduleBtn.textContent = "Update Reservation";
+                submitRescheduleBtn.disabled = false;
+            });
         });
     }
 
@@ -1841,29 +1797,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast("Order Placed", `Confirmation receipt ${orderNum} sent.`);
             };
 
-            if (supabase) {
-                supabase.from('takeaway_orders').insert([{
-                    order_id: orderNum,
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: orderNum,
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    type: typeSelected,
+                    address: address,
                     items: cartItems,
                     subtotal: subtotal,
                     total: total,
-                    status: 'pending',
-                    email: email,
-                    name: name,
-                    phone: phone,
-                    address: address,
-                    instructions: instructions,
-                    fulfillment_type: typeSelected
-                }]).then(({ error }) => {
-                    if (error) console.error("Supabase order error:", error);
-                    finalizeOrder();
-                }).catch(err => {
-                    console.error("Supabase order query crash:", err);
-                    finalizeOrder();
-                });
-            } else {
-                setTimeout(finalizeOrder, 1200);
-            }
+                    instructions: instructions
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to place order");
+                return res.json();
+            })
+            .then(() => {
+                finalizeOrder();
+            })
+            .catch(err => {
+                console.error("API order placement error:", err);
+                showToast("Connection Error", "Failed to save order online. Saved locally.");
+                finalizeOrder();
+            });
         });
     }
 
@@ -1970,24 +1931,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 showToast("Gift Voucher Issued", `Code ${voucherCode} confirmed.`);
             };
 
-            if (supabase) {
-                supabase.from('gift_vouchers').insert([{
+            fetch('/api/vouchers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     voucher_code: voucherCode,
                     recipient: toVal,
                     sender: fromVal,
                     package_id: pkgId,
-                    message: msgVal,
-                    status: 'active'
-                }]).then(({ error }) => {
-                    if (error) console.error("Supabase gift error:", error);
-                    finalizeGift();
-                }).catch(err => {
-                    console.error("Supabase gift query crash:", err);
-                    finalizeGift();
-                });
-            } else {
-                setTimeout(finalizeGift, 1200);
-            }
+                    message: msgVal
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to purchase voucher");
+                return res.json();
+            })
+            .then(() => {
+                finalizeGift();
+            })
+            .catch(err => {
+                console.error("API voucher purchase error:", err);
+                showToast("Connection Error", "Failed to save voucher online. Saved locally.");
+                finalizeGift();
+            });
         });
     }
 

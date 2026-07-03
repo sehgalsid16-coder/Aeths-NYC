@@ -1,22 +1,33 @@
 {
   "name": "aether-nyc-booking-system",
   "version": "1.0.0",
-  "description": "Ultra-premium static website and interactive booking system demo for Aether NYC.",
+  "description": "Premium booking system demo and quiet luxury admin panel for Aether NYC.",
   "main": "index.html",
   "scripts": {
-    "dev": "npx http-server -p 3000 -c-1",
-    "start": "npx http-server -p 3000 -c-1"
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start"
   },
   "keywords": [
     "restaurant",
     "booking",
     "luxury",
-    "demo",
-    "interactive"
+    "admin",
+    "airtable"
   ],
   "author": "Antigravity",
   "license": "MIT",
+  "dependencies": {
+    "next": "^14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "airtable": "^0.12.2",
+    "lucide-react": "^0.379.0"
+  },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "typescript": "^5.4.5",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/node": "^20.12.12"
   }
 }
