@@ -267,16 +267,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-        // Active bookings today
+        // Active bookings
         const activeBookings = state.bookings.filter(b => b.status !== "cancelled");
-        const todayBookings = activeBookings.filter(b => b.date === todayStr);
-        const tomorrowBookings = activeBookings.filter(b => b.date === tomorrowStr);
 
-        elements.statBookingsToday.textContent = todayBookings.length;
-        elements.statBookingsTomorrow.textContent = `Tomorrow: ${tomorrowBookings.length} booking${tomorrowBookings.length === 1 ? '' : 's'}`;
+        elements.statBookingsToday.textContent = activeBookings.length;
+        elements.statBookingsTomorrow.textContent = "Across all dates";
 
         // Covers committed today
+        const todayBookings = activeBookings.filter(b => b.date === todayStr);
         const coversTodayCount = todayBookings.reduce((sum, b) => sum + (Number(b.guests) || 0), 0);
         elements.statCoversToday.textContent = coversTodayCount;
 
