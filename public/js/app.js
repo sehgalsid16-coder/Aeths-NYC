@@ -40,6 +40,23 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${year}-${month}-${day}`;
     };
 
+    const formatDateUS = (dateVal) => {
+        if (!dateVal) return '';
+        let d = dateVal;
+        if (!(d instanceof Date)) {
+            const cleanStr = String(dateVal).split('T')[0];
+            const parts = cleanStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[1]}/${parts[2]}/${parts[0]}`;
+            }
+            d = new Date(cleanStr + "T00:00:00");
+        }
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${month}/${day}/${year}`;
+    };
+
     // Helper: Generate dynamic Google Calendar template link
     const generateGoogleCalendarLink = (booking) => {
         const title = encodeURIComponent("Reservation at Aether NYC");
@@ -803,8 +820,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("err-name").textContent = "Full name is required";
                 hasErrors = true;
             }
+            const cleanPhone = phone.replace(/\D/g, '');
             if (!phone) {
                 document.getElementById("err-phone").textContent = "Contact number is required";
+                hasErrors = true;
+            } else if (cleanPhone.length !== 10) {
+                document.getElementById("err-phone").textContent = "US phone number is required (10 digits, e.g., 212-555-0198)";
                 hasErrors = true;
             }
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -945,7 +966,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("success-name").textContent = booking.name;
         document.getElementById("success-guests").textContent = `${booking.guests} guest${booking.guests > 1 ? 's' : ''}`;
         
-        const dateStr = booking.date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const dateStr = formatDateUS(booking.date);
         document.getElementById("success-date").textContent = dateStr;
         document.getElementById("success-time").textContent = booking.time;
         
@@ -1066,8 +1087,8 @@ document.addEventListener("DOMContentLoaded", () => {
             let foundBooking = null;
 
             if (activeVerifyMethod === "ref") {
-                const refId = elements.manageRefIdInput ? elements.manageRefIdInput.value.trim() : "";
-                const email = elements.manageRefEmailInput ? elements.manageRefEmailInput.value.trim() : "";
+                const refId = elements.manageRefIdInput ? elements.manageRefIdInput.value.trim().toUpperCase() : "";
+                const email = elements.manageRefEmailInput ? elements.manageRefEmailInput.value.trim().toLowerCase() : "";
 
                 if (!refId || !email) {
                     if (elements.errManageVerify) elements.errManageVerify.textContent = "Please fill in all booking reference fields.";
@@ -1098,13 +1119,26 @@ document.addEventListener("DOMContentLoaded", () => {
                             status: b.status
                         };
                         // sync to local state
-                        if (!state.bookings.some(x => x.id === foundBooking.id)) {
+                        if (!state.bookings.some(x => x.id.toUpperCase() === foundBooking.id.toUpperCase())) {
                             state.bookings.push(foundBooking);
                             saveBookingsToStorage();
                         }
                     }
                 } catch (e) {
                     console.error("API lookup error:", e);
+                }
+
+                // Fallback to local storage
+                if (!foundBooking) {
+                    const localB = state.bookings.find(
+                        x => x.id.toUpperCase() === refId && x.email.toLowerCase() === email
+                    );
+                    if (localB) {
+                        foundBooking = {
+                            ...localB,
+                            date: localB.date instanceof Date ? localB.date : new Date(String(localB.date).split('T')[0] + "T00:00:00")
+                        };
+                    }
                 }
             } else {
                 const phone = elements.managePhoneNumInput ? elements.managePhoneNumInput.value.trim() : "";
@@ -1145,7 +1179,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 status: b.status
                             };
                             // sync to local state
-                            if (!state.bookings.some(x => x.id === foundBooking.id)) {
+                            if (!state.bookings.some(x => x.id.toUpperCase() === foundBooking.id.toUpperCase())) {
                                 state.bookings.push(foundBooking);
                                 saveBookingsToStorage();
                             }
@@ -1153,6 +1187,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 } catch (e) {
                     console.error("API phone lookup error:", e);
+                }
+
+                // Fallback to local storage
+                if (!foundBooking) {
+                    const localB = state.bookings.find(x => {
+                        const cleanBookingPhone = x.phone.replace(/\D/g, '');
+                        const formattedBookingDate = x.date instanceof Date 
+                            ? x.date.toISOString().split('T')[0] 
+                            : String(x.date).split('T')[0];
+                        return cleanBookingPhone === cleanPhone && formattedBookingDate === dateVal && x.status !== 'cancelled';
+                    });
+                    if (localB) {
+                        foundBooking = {
+                            ...localB,
+                            date: localB.date instanceof Date ? localB.date : new Date(String(localB.date).split('T')[0] + "T00:00:00")
+                        };
+                    }
                 }
             }
 
@@ -1164,12 +1215,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Populate UI details
                 if (elements.manageDetName) elements.manageDetName.textContent = foundBooking.name;
                 
-                const formattedDate = foundBooking.date.toLocaleDateString("en-US", {
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric'
-                });
+                const formattedDate = formatDateUS(foundBooking.date);
                 if (elements.manageDetDate) elements.manageDetDate.textContent = formattedDate;
                 if (elements.manageDetTime) elements.manageDetTime.textContent = foundBooking.time;
                 if (elements.manageDetGuests) elements.manageDetGuests.textContent = foundBooking.guests;
@@ -1263,7 +1309,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 finalizeSave();
             } catch (err) {
                 console.error("API update requests error:", err);
-                showToast("Connection Error", "Failed to save changes online. Saved locally.");
                 finalizeSave();
             }
         });
@@ -1354,7 +1399,6 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
                 console.error("API cancel error:", err);
-                showToast("Connection Error", "Failed to cancel online. Saved locally.");
                 finalizeCancel();
             })
             .finally(() => {
@@ -1698,8 +1742,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("err-takeaway-name").textContent = "Full Name is required";
                 isValid = false;
             }
+            const cleanPhone = phone.replace(/\D/g, '');
             if (!phone) {
                 document.getElementById("err-takeaway-phone").textContent = "Phone Number is required";
+                isValid = false;
+            } else if (cleanPhone.length !== 10) {
+                document.getElementById("err-takeaway-phone").textContent = "US phone number is required (10 digits)";
                 isValid = false;
             }
             

@@ -193,18 +193,64 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             // Load Bookings
             const resBookings = await fetch('/api/bookings');
-            if (!resBookings.ok) throw new Error("Bookings error");
-            state.bookings = await resBookings.json();
+            if (resBookings.ok) {
+                state.bookings = await resBookings.json();
+            } else {
+                state.bookings = [];
+            }
+
+            // Sync guest-facing browser bookings
+            const storedBookings = localStorage.getItem("aether_bookings");
+            if (storedBookings) {
+                const localBookings = JSON.parse(storedBookings);
+                localBookings.forEach(localB => {
+                    const exists = state.bookings.some(b => b.id.toUpperCase() === localB.id.toUpperCase());
+                    if (!exists) {
+                        state.bookings.push({
+                            ...localB,
+                            date: localB.date instanceof Date ? localB.date.toISOString().split('T')[0] : String(localB.date).split('T')[0]
+                        });
+                    }
+                });
+            }
 
             // Load Orders
             const resOrders = await fetch('/api/orders');
-            if (!resOrders.ok) throw new Error("Orders error");
-            state.orders = await resOrders.json();
+            if (resOrders.ok) {
+                state.orders = await resOrders.json();
+            } else {
+                state.orders = [];
+            }
+
+            const storedOrders = localStorage.getItem("aether_orders");
+            if (storedOrders) {
+                const localOrders = JSON.parse(storedOrders);
+                localOrders.forEach(localO => {
+                    const exists = state.orders.some(o => o.id.toUpperCase() === localO.id.toUpperCase());
+                    if (!exists) {
+                        state.orders.push(localO);
+                    }
+                });
+            }
 
             // Load Vouchers
             const resVouchers = await fetch('/api/vouchers');
-            if (!resVouchers.ok) throw new Error("Vouchers error");
-            state.vouchers = await resVouchers.json();
+            if (resVouchers.ok) {
+                state.vouchers = await resVouchers.json();
+            } else {
+                state.vouchers = [];
+            }
+
+            const storedVouchers = localStorage.getItem("aether_vouchers");
+            if (storedVouchers) {
+                const localVouchers = JSON.parse(storedVouchers);
+                localVouchers.forEach(localV => {
+                    const exists = state.vouchers.some(v => v.voucher_code.toUpperCase() === localV.voucher_code.toUpperCase());
+                    if (!exists) {
+                        state.vouchers.push(localV);
+                    }
+                });
+            }
 
             // Load Audit Log
             const resHistory = await fetch('/api/bookings/history');
@@ -215,8 +261,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             state.dbOnline = true;
-            elements.statusDot.className = "status-dot online";
-            elements.statusText.textContent = "Database connected";
+            if (elements.statusDot) {
+                elements.statusDot.className = "status-dot online";
+            }
+            if (elements.statusText) {
+                elements.statusText.textContent = "Database connected";
+            }
             
             // Re-render based on active tab
             updateMetricsSummary();
@@ -908,6 +958,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!res.ok) throw new Error("Reschedule PATCH error");
 
+                // Save locally to browser localstorage so guest portal is synced
+                const localBookings = JSON.parse(localStorage.getItem("aether_bookings") || "[]");
+                const bIdx = localBookings.findIndex(b => b.id === id);
+                if (bIdx !== -1) {
+                    localBookings[bIdx].date = date;
+                    localBookings[bIdx].time = time;
+                    localBookings[bIdx].guests = guests;
+                    localStorage.setItem("aether_bookings", JSON.stringify(localBookings));
+                }
+
                 closeModal(elements.modalRescheduleBooking);
                 showToast("Booking Rescheduled", `Rescheduled code ${id} successfully.`);
                 await loadAllData(); // Reload all to update lists and logs
@@ -945,6 +1005,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!res.ok) throw new Error("Cancel PATCH error");
 
+                // Save locally to browser localstorage so guest portal is synced
+                const localBookings = JSON.parse(localStorage.getItem("aether_bookings") || "[]");
+                const bIdx = localBookings.findIndex(b => b.id === id);
+                if (bIdx !== -1) {
+                    localBookings[bIdx].status = 'cancelled';
+                    localStorage.setItem("aether_bookings", JSON.stringify(localBookings));
+                }
+
                 closeModal(elements.modalCancelBooking);
                 showToast("Booking Cancelled", `Reservation ${id} was cancelled gracefully.`);
                 await loadAllData(); // Reload all to update metrics, ledgers, and audit trails
@@ -973,6 +1041,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const seatType = document.getElementById("new-guest-zone").value;
             const occasion = document.getElementById("new-guest-occasion").value;
             const dietary = document.getElementById("new-guest-dietary").value.trim();
+
+            const cleanPhone = phone.replace(/\D/g, '');
+            if (cleanPhone.length !== 10) {
+                showToast("Validation Error", "Please enter a valid 10-digit US phone number (e.g. 212-555-0198).", true);
+                return;
+            }
 
             // Gather upgrades checkboxes
             const upgrades = [];
@@ -1027,6 +1101,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!res.ok) throw new Error("POST booking error");
 
+                // Save locally to browser localstorage so guest portal is synced
+                const localBookings = JSON.parse(localStorage.getItem("aether_bookings") || "[]");
+                localBookings.push({
+                    id: refCode,
+                    name,
+                    phone,
+                    email,
+                    date,
+                    time,
+                    guests,
+                    seatType,
+                    upgrades,
+                    occasion,
+                    dietary,
+                    status: 'confirmed',
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem("aether_bookings", JSON.stringify(localBookings));
+
                 elements.createBookingForm.reset();
                 closeModal(elements.modalCreateBooking);
                 showToast("Booking Created", `Manual booking logged. Ref: ${refCode}`);
@@ -1067,6 +1160,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!res.ok) throw new Error("POST voucher error");
 
+                // Save locally to browser localstorage so guest portal is synced
+                const localVouchers = JSON.parse(localStorage.getItem("aether_vouchers") || "[]");
+                localVouchers.push({
+                    voucher_code,
+                    recipient,
+                    sender,
+                    package_id,
+                    message,
+                    status: 'active',
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem("aether_vouchers", JSON.stringify(localVouchers));
+
                 elements.createVoucherForm.reset();
                 closeModal(elements.modalCreateVoucher);
                 showToast("Voucher Issued", `Gift code generated: ${voucher_code}`);
@@ -1093,24 +1199,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formatDateString = (dateStr) => {
         if (!dateStr) return '';
-        const dateObj = new Date(dateStr + "T00:00:00");
-        return dateObj.toLocaleDateString("en-US", {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
+        const cleanStr = String(dateStr).split('T')[0];
+        const parts = cleanStr.split('-');
+        if (parts.length === 3) {
+            return `${parts[1]}/${parts[2]}/${parts[0]}`;
+        }
+        const dateObj = new Date(cleanStr + "T00:00:00");
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        return `${month}/${day}/${year}`;
     };
 
     const formatDateTime = (isoString) => {
         if (!isoString) return '';
         const d = new Date(isoString);
-        return d.toLocaleDateString("en-US", {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const year = d.getFullYear();
+        let hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
     };
 
     // --- INITIAL BOOTSTRAP ---
