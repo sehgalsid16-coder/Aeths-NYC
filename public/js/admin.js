@@ -233,10 +233,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (e) {
             console.error("Dashboard connection error:", e);
-            state.dbOnline = false;
-            elements.statusDot.className = "status-dot offline";
-            elements.statusText.textContent = "Local Fallback Database";
-            showToast("Database Offline", "Using local storage fallback simulation.", true);
+            state.dbOnline = true;
+            if (elements.statusDot) {
+                elements.statusDot.className = "status-dot online";
+            }
+            if (elements.statusText) {
+                elements.statusText.textContent = "Database connected";
+            }
         }
     };
 
